@@ -1,0 +1,38 @@
+# Archivos y carpetas de entornos virtuales
+venv/
+venv_api/
+ambiente_virtual/
+
+# Archivos de configuración sensibles
+.env
+*.env
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Archivos creados por editores
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.code-workspace
+
+# Archivos de bases de datos temporales o de prueba
+*.sqlite3
+*.db
+
+# Archivos de logs
+*.log
+
+# Archivos de compilación o distribución
+build/
+dist/
+*.egg-info/
+
+# Otros archivos innecesarios
+.DS_Store
+Thumbs.db

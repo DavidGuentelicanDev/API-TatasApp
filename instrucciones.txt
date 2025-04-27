@@ -1,0 +1,17 @@
+Luego del git pull o git clone, deben crear el ambiente virtual e instalar todas las dependencias necesarias con los siguientes comandos:
+
+- python -m venv ambiente_virtual (el ambiente virtual puede tener cualquier nombre)
+- ambiente_virtual\Scripts\activate
+- pip install -r requirements.txt
+
+Para iniciar el servidor local usar: uvicorn app.main:app --reload
+
+
+COMANDOS ORIGINALES:
+python.exe -m pip install --upgrade pip
+pip install fastapi[all] (instalación e fastapi)
+pip install sqlalchemy psycopg2 (sqlalchemy el orm de Python / psycopg2 permite vincular con PostgreSQL)
+pip install passlib[bcrypt] (para crear hash de contraseñas)
+pip install python-jose[cryptography] (para crear tokens de autenticación)
+pip freeze (para revisar todo lo instalado en el venv)
+pip freeze > requirements.txt (para crear el archivo requirements)
