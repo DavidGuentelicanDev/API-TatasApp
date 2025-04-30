@@ -124,7 +124,7 @@ def crear_respuesta_json(
 #agregado por andrea 29/04/2025
 
 def fecha_futura_valida(fecha: datetime, field_name: str = 'fecha') -> datetime:
-    ahora = datetime.now(timezone.utc)  # Esto genera un datetime "aware" en UTC
+    ahora = datetime.now().replace(tzinfo=None)
     if fecha < ahora:
         raise ValueError(f"La {field_name} debe ser igual o posterior a la fecha y hora actual")
     return fecha
