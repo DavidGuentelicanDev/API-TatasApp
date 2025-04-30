@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 import psycopg2
 from psycopg2 import errors
 from app.services.dependencies import get_db
-from app.models import Usuario, Direccion, Familiar
+from app.models import Usuario, Direccion, Familiar, Evento
 from app.schemas import (
     UsuarioOut,
     UsuarioCreate,
@@ -16,7 +16,8 @@ from app.schemas import (
     RespuestaLoginExitoso,
     RespuestaLoginErronea,
     ContactosRegistrados,
-    FamiliarCreate
+    FamiliarCreate,
+    EventoCreate
 )
 from app.auth.hashing import get_hash_contrasena
 from app.auth.auth import autentificar_usuario
@@ -30,6 +31,7 @@ from app.utils.helpers import (
 
 usuarios_router = APIRouter(prefix="/usuarios", tags=["Usuarios"]) #direccion por defecto de todas las rutas de usuarios
 familiares_router = APIRouter(prefix="/familiares", tags=["Familiares"]) #direccion de todas las rutas de familiares
+eventos_router = APIRouter(prefix="/eventos", tags=["Eventos"]) #direccion de todas las rutas de eventos
 
 
 #ruta de prueba para usuarios
@@ -200,4 +202,29 @@ def registrar_familiar(familiar: FamiliarCreate, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=500,
             detail=f"Error al registrar familiar: {str(e)}"
+        )
+
+#######################################################################################################
+
+# ruta get para crear eventos
+# creada por Andrea 29/04/2025
+@eventos_router.post("/crear-evento", status_code=status.HTTP_201_CREATED)
+def crear_evento(evento: EventoCreate, db: Session = Depends(get_db)):
+    try:
+        nuevo_evento = Evento(**evento.model_dump())
+        db.add(nuevo_evento)
+        db.commit()
+        db.refresh(nuevo_evento)
+
+        return {
+            "status": "success",
+            "message": "Evento creado correctamente",
+            "evento_id": nuevo_evento.id
+        }
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al crear evento: {str(e)}"
         )

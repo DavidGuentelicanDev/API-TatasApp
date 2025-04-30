@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 import re
+from datetime import datetime, timezone
 
 
 #SCHEMAS DE REGISTRO DE USUARIO
@@ -116,3 +117,28 @@ def crear_respuesta_json(
     if data:
         content.update({"data": data})
     return JSONResponse(status_code=status_code, content=content)
+
+#########################################################################
+
+#validador fecha y tiempo 
+#agregado por andrea 29/04/2025
+
+def fecha_futura_valida(fecha: datetime, field_name: str = 'fecha') -> datetime:
+    ahora = datetime.now(timezone.utc)  # Esto genera un datetime "aware" en UTC
+    if fecha < ahora:
+        raise ValueError(f"La {field_name} debe ser igual o posterior a la fecha y hora actual")
+    return fecha
+
+# Decorador reutilizable para fechas futuras
+def validador_fecha_futura(campo: str = 'fecha'):
+    return field_validator(campo)(lambda cls, v, info: fecha_futura_valida(v, info.field_name))
+
+# Validar que el valor esté dentro de una lista permitida
+def opcion_en_lista_valida(v: int, opciones: list[int], field_name: str = 'campo') -> int:
+    if v not in opciones:
+        raise ValueError(f"El {field_name} debe ser una de las siguientes opciones: {opciones}")
+    return v
+
+# Decorador para ver si la opcion de tipo evento esta dentro ded la lista permitida, 
+def validador_opcion_en_lista(campo: str, opciones: list[int]):
+    return field_validator(campo)(lambda cls, v, info: opcion_en_lista_valida(v, opciones, info.field_name))
