@@ -12,3 +12,7 @@ Usuarios:
 Familiares:
 
 - Registro de familiar
+
+Eventos:
+
+- Crear evento

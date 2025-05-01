@@ -6,6 +6,7 @@ ambiente_virtual/
 # Archivos de configuración sensibles
 .env
 *.env
+serviceAccountKey.json
 
 # Cache de Python
 __pycache__/

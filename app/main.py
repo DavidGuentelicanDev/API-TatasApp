@@ -11,11 +11,14 @@ from app.validations import (
 )
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
+from app.utils.notifications import inicializar_firebase
 
 
 app = FastAPI(title=settings.PROJECT_NAME) #inicializar la app
 
 Base.metadata.create_all(bind=engine) #crea las tablas automaticamente al iniciar
+
+firebase_status = inicializar_firebase() #inicializa firebase admin sdk
 
 #cors middleware para la ruta local/externa de la api
 app.add_middleware(
@@ -29,7 +32,10 @@ app.add_middleware(
 #ruta raiz para verificar que la api funciona
 @app.get("/")
 def root():
-    return {"mensaje": "API TatasApp iniciada correctamente"}
+    return {
+        "mensaje": "API TatasApp iniciada correctamente",
+        "firebase_status": firebase_status
+    }
 
 #incluye todas las rutas de manera modular de routers.py automaticamente
 app.include_router(usuarios_router)
