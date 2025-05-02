@@ -1,6 +1,7 @@
 # Define las rutas principales de la API y agrupa los endpoints por funcionalidades.
 # Creado por david el 15/04
-
+from app.models import Familiar, Usuario
+from app.utils.notifications import enviar_notificacion_push
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -232,18 +233,45 @@ def crear_evento(evento: EventoCreate, db: Session = Depends(get_db)):
             detail=f"Error al crear evento: {str(e)}"
         )
 
+
+# ruta POST para crear ALARMAS
+#Envía notificacion a familiar si tiene token
+# creada por Ale 02/05/2025
 @alertas_router.post("/crear", status_code=status.HTTP_201_CREATED)
 def registrar_alerta(alerta: AlertaCreate, db: Session = Depends(get_db)):
     try:
+        # 1. Guardar alerta en la base de datos
         nueva_alerta = crear_alerta(alerta, db)
+
+        # 2. Buscar familiares asociados al usuario que generó la alerta
+        familiares = db.query(Familiar).filter(Familiar.adulto_mayor_id == alerta.usuario_id).all()
+
+        for f in familiares:
+            familiar_usuario = db.query(Usuario).filter(Usuario.id == f.familiar_id).first()
+            if familiar_usuario and familiar_usuario.token_fcm:
+                titulo = "Alerta de emergencia"
+                cuerpo = f"Se ha generado una alerta: {nueva_alerta.tipo_alerta_nombre}"
+                enviar_notificacion_push(familiar_usuario.token_fcm, titulo, cuerpo)
+
+        # 3. Respuesta exitosa
         return crear_respuesta_json(
             status_code=201,
             message="Alerta registrada correctamente",
             data={"id_alerta": nueva_alerta.id}
         )
+
     except Exception as e:
         db.rollback()
         raise HTTPException(
             status_code=500,
             detail=f"Error al registrar alerta: {str(e)}"
         )
+
+#RUTA PARA BUSCAR TOKEN DE PRUEBA : ELIMINAR
+#CREADA POR ALE 02-05-2025
+
+@usuarios_router.get("/tokens-fcm")
+def obtener_tokens_fcm(db: Session = Depends(get_db)):
+    usuarios = db.query(Usuario).filter(Usuario.token_fcm != None).all()
+    return [{"id": u.id, "nombre": u.nombres, "token": u.token_fcm} for u in usuarios]
+

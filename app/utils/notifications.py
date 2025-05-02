@@ -24,4 +24,18 @@ def inicializar_firebase():
         print(f"Error al inicializar Firebase Admin SDK: {str(e)}")
         return f"Error al inicializar Firebase Admin SDK: {str(e)}"
 
-
+# Enviar notificación FCM
+# creado por Ale el 02/05/2025
+def enviar_notificacion_push(token_fcm: str, titulo: str, cuerpo: str) -> str:
+    try:
+        mensaje = messaging.Message(
+            notification=messaging.Notification(
+                title=titulo,
+                body=cuerpo
+            ),
+            token=token_fcm
+        )
+        response = messaging.send(mensaje)
+        return f"Notificación enviada: {response}"
+    except Exception as e:
+        return f"Error al enviar notificación: {str(e)}"
