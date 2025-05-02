@@ -1,41 +1,33 @@
-# Lógica de envío o simulación de notificaciones (voz, texto, push).
-# Envío de mensajes de alerta (por ahora locales, en el futuro push/SMS)
-# Simulación de lectura de voz para el adulto mayor
+# Lógica de envío de notificaciones push vía OneSignal.
+# Sustituye integración con Firebase.
+# Creado por Ale el 02/05/2025
 
-# Creado por david el 15/04
+import requests
+import os
 
-import firebase_admin
-from firebase_admin import credentials, messaging
-import json
-from app.config import settings
+# Cargar credenciales desde entorno (.env o config)
+ONESIGNAL_APP_ID = os.getenv("ONESIGNAL_APP_ID")
+ONESIGNAL_REST_API_KEY = os.getenv("ONESIGNAL_REST_API_KEY")
 
-
-#inicializar firebase admin sdk
-#creado por david el 29/04
-def inicializar_firebase():
+# Enviar notificación Push usando OneSignal
+def enviar_notificacion_push(token_player_id: str, titulo: str, cuerpo: str) -> str:
     try:
-        if not firebase_admin._apps:
-            cred_dict = json.loads(settings.GOOGLE_APPLICATION_CREDENTIALS_JSON)
-            cred = credentials.Certificate(cred_dict)
-            firebase_admin.initialize_app(cred)
-        print("Firebase Admin SDK inicializado correctamente")
-        return "Firebase Admin SDK inicializado correctamente"
-    except Exception as e:
-        print(f"Error al inicializar Firebase Admin SDK: {str(e)}")
-        return f"Error al inicializar Firebase Admin SDK: {str(e)}"
+        url = "https://onesignal.com/api/v1/notifications"
+        headers = {
+            "Content-Type": "application/json; charset=utf-8",
+            "Authorization": f"Basic {ONESIGNAL_REST_API_KEY}"
+        }
 
-# Enviar notificación FCM
-# creado por Ale el 02/05/2025
-def enviar_notificacion_push(token_fcm: str, titulo: str, cuerpo: str) -> str:
-    try:
-        mensaje = messaging.Message(
-            notification=messaging.Notification(
-                title=titulo,
-                body=cuerpo
-            ),
-            token=token_fcm
-        )
-        response = messaging.send(mensaje)
-        return f"Notificación enviada: {response}"
+        payload = {
+            "app_id": ONESIGNAL_APP_ID,
+            "include_player_ids": [token_player_id],
+            "headings": {"en": titulo},
+            "contents": {"en": cuerpo}
+        }
+
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+
+        return f"Notificación enviada: {response.json().get('id')}"
     except Exception as e:
         return f"Error al enviar notificación: {str(e)}"

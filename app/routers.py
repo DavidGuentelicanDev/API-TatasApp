@@ -1,5 +1,6 @@
 # Define las rutas principales de la API y agrupa los endpoints por funcionalidades.
 # Creado por david el 15/04
+from pydantic import BaseModel
 from app.models import Familiar, Usuario
 from app.utils.notifications import enviar_notificacion_push
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -18,7 +19,8 @@ from app.schemas import (
     RespuestaLoginErronea,
     ContactosRegistrados,
     FamiliarCreate,
-    EventoCreate
+    EventoCreate,
+    TokenPushIn
 )
 from app.auth.hashing import get_hash_contrasena
 from app.auth.auth import autentificar_usuario
@@ -248,10 +250,10 @@ def registrar_alerta(alerta: AlertaCreate, db: Session = Depends(get_db)):
 
         for f in familiares:
             familiar_usuario = db.query(Usuario).filter(Usuario.id == f.familiar_id).first()
-            if familiar_usuario and familiar_usuario.token_fcm:
+            if familiar_usuario and familiar_usuario.token_push:
                 titulo = "Alerta de emergencia"
                 cuerpo = f"Se ha generado una alerta: {nueva_alerta.tipo_alerta_nombre}"
-                enviar_notificacion_push(familiar_usuario.token_fcm, titulo, cuerpo)
+                enviar_notificacion_push(familiar_usuario.token_push, titulo, cuerpo)
 
         # 3. Respuesta exitosa
         return crear_respuesta_json(
@@ -267,11 +269,19 @@ def registrar_alerta(alerta: AlertaCreate, db: Session = Depends(get_db)):
             detail=f"Error al registrar alerta: {str(e)}"
         )
 
-#RUTA PARA BUSCAR TOKEN DE PRUEBA : ELIMINAR
-#CREADA POR ALE 02-05-2025
+# POST PARA REGISTRATR TOKEN
+# creada por Ale 02/05/2025
+@usuarios_router.post("/registrar_token_push", status_code=200)
+def registrar_token_push(data: TokenPushIn, db: Session = Depends(get_db)):
+    usuario = db.query(Usuario).filter(Usuario.id == data.id_usuario).first()
 
-@usuarios_router.get("/tokens-fcm")
-def obtener_tokens_fcm(db: Session = Depends(get_db)):
-    usuarios = db.query(Usuario).filter(Usuario.token_fcm != None).all()
-    return [{"id": u.id, "nombre": u.nombres, "token": u.token_fcm} for u in usuarios]
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
+    usuario.token_push = data.token_push
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": "Token push registrado correctamente"
+    }

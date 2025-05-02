@@ -163,3 +163,13 @@ class AlertaCreate(BaseModel):
     _validar_campos_str = validador_no_string_vacio('ubicacion', 'mensaje')
     _val_tipo = validador_opcion_en_lista("tipo_alerta", [1, 2, 3, 4])
 
+    
+
+# esquema para registrar el token push de OneSignal
+# creado por Ale el 02/05/2025
+
+class TokenPushIn(BaseModel):
+    id_usuario: int
+    token_push: str
+
+    _validar_campos_str = validador_no_string_vacio('token_push')
