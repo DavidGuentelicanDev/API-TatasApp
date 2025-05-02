@@ -1,6 +1,8 @@
 # Define las rutas principales de la API y agrupa los endpoints por funcionalidades.
 # Creado por david el 15/04
-
+from pydantic import BaseModel
+from app.models import Familiar, Usuario
+from app.utils.notifications import enviar_notificacion_push
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -17,7 +19,8 @@ from app.schemas import (
     RespuestaLoginErronea,
     ContactosRegistrados,
     FamiliarCreate,
-    EventoCreate
+    EventoCreate,
+    TokenPushIn
 )
 from app.auth.hashing import get_hash_contrasena
 from app.auth.auth import autentificar_usuario
@@ -27,11 +30,14 @@ from app.utils.helpers import (
     verificar_campos_unicos,
     crear_respuesta_json
 )
+from app.schemas import AlertaCreate
+from app.services.alertas_services import crear_alerta
 
 
 usuarios_router = APIRouter(prefix="/usuarios", tags=["Usuarios"]) #direccion por defecto de todas las rutas de usuarios
 familiares_router = APIRouter(prefix="/familiares", tags=["Familiares"]) #direccion de todas las rutas de familiares
 eventos_router = APIRouter(prefix="/eventos", tags=["Eventos"]) #direccion de todas las rutas de eventos
+alertas_router = APIRouter(prefix="/alertas", tags=["Alertas"]) #direccion de todas las rutas de alerta
 
 
 #ruta de prueba para usuarios
@@ -228,3 +234,54 @@ def crear_evento(evento: EventoCreate, db: Session = Depends(get_db)):
             status_code=500,
             detail=f"Error al crear evento: {str(e)}"
         )
+
+
+# ruta POST para crear ALARMAS
+#Envía notificacion a familiar si tiene token
+# creada por Ale 02/05/2025
+@alertas_router.post("/crear", status_code=status.HTTP_201_CREATED)
+def registrar_alerta(alerta: AlertaCreate, db: Session = Depends(get_db)):
+    try:
+        # 1. Guardar alerta en la base de datos
+        nueva_alerta = crear_alerta(alerta, db)
+
+        # 2. Buscar familiares asociados al usuario que generó la alerta
+        familiares = db.query(Familiar).filter(Familiar.adulto_mayor_id == alerta.usuario_id).all()
+
+        for f in familiares:
+            familiar_usuario = db.query(Usuario).filter(Usuario.id == f.familiar_id).first()
+            if familiar_usuario and familiar_usuario.token_push:
+                titulo = "Alerta de emergencia"
+                cuerpo = f"Se ha generado una alerta: {nueva_alerta.tipo_alerta_nombre}"
+                enviar_notificacion_push(familiar_usuario.token_push, titulo, cuerpo)
+
+        # 3. Respuesta exitosa
+        return crear_respuesta_json(
+            status_code=201,
+            message="Alerta registrada correctamente",
+            data={"id_alerta": nueva_alerta.id}
+        )
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al registrar alerta: {str(e)}"
+        )
+
+# POST PARA REGISTRATR TOKEN
+# creada por Ale 02/05/2025
+@usuarios_router.post("/registrar_token_push", status_code=200)
+def registrar_token_push(data: TokenPushIn, db: Session = Depends(get_db)):
+    usuario = db.query(Usuario).filter(Usuario.id == data.id_usuario).first()
+
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    usuario.token_push = data.token_push
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": "Token push registrado correctamente"
+    }

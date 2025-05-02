@@ -26,7 +26,7 @@ class Settings:
     ALGORITHM = os.getenv("ALGORITHM")
 
     #clave secreta de FCM
-    GOOGLE_APPLICATION_CREDENTIALS_JSON = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+    #GOOGLE_APPLICATION_CREDENTIALS_JSON = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
 
     @property
     def database_url(self):

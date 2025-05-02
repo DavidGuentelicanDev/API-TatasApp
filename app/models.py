@@ -189,7 +189,7 @@ class Evento(Base):
 class Alerta(Base):
     __tablename__ = "ALERTA"
 
-    #diccionario de tipos de alerta
+    #diccionario de tipos de eventos
     TIPOS_ALERTA = {
         1: "Zona Segura",
         2: "Inactividad",
