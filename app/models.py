@@ -53,7 +53,7 @@ class Usuario(Base):
     tipo_usuario = Column(SmallInteger, nullable=False, index=True)
     contrasena = Column(String(255), nullable=False)
     foto_perfil = Column(Text, nullable=True)
-    token_fcm = Column(Text, nullable=True) #token para notificaciones push
+    token_push = Column(Text, nullable=True) #token para notificaciones push
 
     #relacion con tabla direccion
     direccion_rel = relationship("Direccion", back_populates="usuarios")
@@ -185,10 +185,11 @@ class Evento(Base):
 
 #tabla alerta
 #creado por david el 27/04
+#modificada por david el 02/05
 class Alerta(Base):
     __tablename__ = "ALERTA"
 
-    #diccionario de tipos de eventos
+    #diccionario de tipos de alerta
     TIPOS_ALERTA = {
         1: "Zona Segura",
         2: "Inactividad",
@@ -196,22 +197,35 @@ class Alerta(Base):
         4: "SOS"
     }
 
+    # #diccionario de estados de alerta
+    # ESTADOS_ALERTA = {
+    #     0: "No entregada",
+    #     1: "Entregada"
+    # }
+
     id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
     usuario_id = Column(BigInteger, ForeignKey("USUARIO.id"), nullable=False, index=True)
     fecha_hora = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
     ubicacion = Column(Text, nullable=False) #se puede guardar como string
     mensaje = Column(Text, nullable=False)
     tipo_alerta = Column(SmallInteger, nullable=False, index=True)
+    #estado_alerta = Column(SmallInteger, nullable=False, index=True, default=0) #0 no entregada, 1 entregada
 
     #relacion con usuario
     usuarios = relationship("Usuario", back_populates="alertas")
 
-    #check para tipo_alerta
+    #checks para tipo_alerta y estado_alerta
     __table_args__ = (
         CheckConstraint("tipo_alerta BETWEEN 1 AND 4", name="check_tipo_alerta_valido"),
+        #CheckConstraint("estado_alerta BETWEEN 0 AND 1", name="check_estado_alerta_valido"),
     )
 
     #propiedad para leer el string de tipo_evento
     @property
     def tipo_alerta_nombre(self):
         return self.TIPOS_ALERTA.get(self.tipo_alerta, "Desconocido")
+
+    #propiedad para leer el string de estado_alerta
+    # @property
+    # def estado_alerta_nombre(self):
+    #     return self.ESTADOS_ALERTA.get(self.estado_alerta, "Desconocido")
