@@ -27,11 +27,14 @@ from app.utils.helpers import (
     verificar_campos_unicos,
     crear_respuesta_json
 )
+from app.schemas import AlertaCreate
+from app.services.alertas_services import crear_alerta
 
 
 usuarios_router = APIRouter(prefix="/usuarios", tags=["Usuarios"]) #direccion por defecto de todas las rutas de usuarios
 familiares_router = APIRouter(prefix="/familiares", tags=["Familiares"]) #direccion de todas las rutas de familiares
 eventos_router = APIRouter(prefix="/eventos", tags=["Eventos"]) #direccion de todas las rutas de eventos
+alertas_router = APIRouter(prefix="/alertas", tags=["Alertas"]) #direccion de todas las rutas de alerta
 
 
 #ruta de prueba para usuarios
@@ -227,4 +230,20 @@ def crear_evento(evento: EventoCreate, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=500,
             detail=f"Error al crear evento: {str(e)}"
+        )
+
+@alertas_router.post("/crear", status_code=status.HTTP_201_CREATED)
+def registrar_alerta(alerta: AlertaCreate, db: Session = Depends(get_db)):
+    try:
+        nueva_alerta = crear_alerta(alerta, db)
+        return crear_respuesta_json(
+            status_code=201,
+            message="Alerta registrada correctamente",
+            data={"id_alerta": nueva_alerta.id}
+        )
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al registrar alerta: {str(e)}"
         )

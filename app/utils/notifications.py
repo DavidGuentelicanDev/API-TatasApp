@@ -5,7 +5,7 @@
 # Creado por david el 15/04
 
 import firebase_admin
-from firebase_admin import credentials
+from firebase_admin import credentials, messaging
 import json
 from app.config import settings
 
@@ -23,3 +23,5 @@ def inicializar_firebase():
     except Exception as e:
         print(f"Error al inicializar Firebase Admin SDK: {str(e)}")
         return f"Error al inicializar Firebase Admin SDK: {str(e)}"
+
+
