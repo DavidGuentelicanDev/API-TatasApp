@@ -20,7 +20,9 @@ from app.schemas import (
     ContactosRegistrados,
     FamiliarCreate,
     EventoCreate,
-    TokenPushIn
+    TokenPushIn,
+    FamiliarOut,
+    UsuarioFamiliarOut
 )
 from app.auth.hashing import get_hash_contrasena
 from app.auth.auth import autentificar_usuario
@@ -210,6 +212,37 @@ def registrar_familiar(familiar: FamiliarCreate, db: Session = Depends(get_db)):
             detail=f"Error al registrar familiar: {str(e)}"
         )
 
+#ruta get para obtener los familiares de un adulto mayor
+#creada por david el 03/05
+@familiares_router.get("/familiares-adulto-mayor/{adulto_mayor_id}", response_model=List[FamiliarOut])
+def obtener_familiares_adulto_mayor(adulto_mayor_id: int, db: Session = Depends(get_db)):
+    try:
+        #obtener los familiares del adulto mayor
+        familiares = db.query(Familiar).filter(Familiar.adulto_mayor_id == adulto_mayor_id).all()
+        familiares_out = []
+
+        for familiar in familiares:
+            familiar_rel_schema = UsuarioFamiliarOut(
+                id_usuario=familiar.familiar.id,
+                nombres=familiar.familiar.nombres,
+                apellidos=familiar.familiar.apellidos,
+                correo=familiar.familiar.correo,
+                telefono=familiar.familiar.telefono,
+                foto_perfil=familiar.familiar.foto_perfil
+            )
+            familiar_out_schema = FamiliarOut(
+                id_adulto_mayor=familiar.adulto_mayor_id,
+                familiar_rel=familiar_rel_schema
+            )
+            familiares_out.append(familiar_out_schema)
+
+        return familiares_out
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener los familiares del adulto mayor: {str(e)}"
+        )
+
 #######################################################################################################
 
 # ruta get para crear eventos
@@ -235,6 +268,7 @@ def crear_evento(evento: EventoCreate, db: Session = Depends(get_db)):
             detail=f"Error al crear evento: {str(e)}"
         )
 
+######################################################################################################
 
 # ruta POST para crear ALARMAS
 #Envía notificacion a familiar si tiene token
@@ -285,3 +319,5 @@ def registrar_token_push(data: TokenPushIn, db: Session = Depends(get_db)):
         "status": "success",
         "message": "Token push registrado correctamente"
     }
+
+###############################################################################################

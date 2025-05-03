@@ -131,9 +131,31 @@ class ContactosRegistrados(BaseModel):
 
 #esquema para guardar familiares
 #creado por david el 25/04
+
 class FamiliarCreate(BaseModel):
     adulto_mayor_id: int
     familiar_id: int
+
+#esquemas para obtener los familiares registrados en el grupo familiar del adulto mayor
+#creado por david el 03/05
+
+class UsuarioFamiliarOut(BaseModel):
+    id_usuario: int
+    nombres: str
+    apellidos: str
+    correo: str
+    telefono: str
+    foto_perfil: Optional[str]
+
+    class Config:
+        from_attributes = True
+
+class FamiliarOut(BaseModel):
+    id_adulto_mayor: int
+    familiar_rel: UsuarioFamiliarOut
+
+    class Config:
+        from_attributes = True
 
 ##############################################################################################
 
@@ -150,6 +172,8 @@ class EventoCreate(BaseModel):
     _validar_campos_str = validador_no_string_vacio('nombre')
     _val_fecha = validador_fecha_futura("fecha_hora")
     _val_tipo = validador_opcion_en_lista("tipo_evento", [1, 2, 3, 4])
+
+###############################################################################################
 
 # esquema para crear una alerta
 # creado por Ale el 02/05/2025
