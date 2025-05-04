@@ -25,4 +25,3 @@ def crear_alerta(alerta_data: AlertaCreate, db: Session) -> Alerta:
     db.commit()
     db.refresh(nueva_alerta)
     return nueva_alerta
-

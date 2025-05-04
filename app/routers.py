@@ -273,7 +273,7 @@ def crear_evento(evento: EventoCreate, db: Session = Depends(get_db)):
 # ruta POST para crear ALARMAS
 #Envía notificacion a familiar si tiene token
 # creada por Ale 02/05/2025
-@alertas_router.post("/crear", status_code=status.HTTP_201_CREATED)
+@alertas_router.post("/crear-alerta", status_code=status.HTTP_201_CREATED)
 def registrar_alerta(alerta: AlertaCreate, db: Session = Depends(get_db)):
     try:
         # 1. Guardar alerta en la base de datos
@@ -319,5 +319,3 @@ def registrar_token_push(data: TokenPushIn, db: Session = Depends(get_db)):
         "status": "success",
         "message": "Token push registrado correctamente"
     }
-
-###############################################################################################
