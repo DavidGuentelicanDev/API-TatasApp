@@ -11,7 +11,6 @@ import pytz
 
 ZH_CHILE = pytz.timezone('America/Santiago') #zona horaria de chile continental
 
-
 #funcion para determinar la zona horaria de funcionamiento de la API
 #creado por david el 29/04
 def horario_actual():

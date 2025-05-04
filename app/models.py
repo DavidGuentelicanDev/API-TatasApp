@@ -53,14 +53,13 @@ class Usuario(Base):
     tipo_usuario = Column(SmallInteger, nullable=False, index=True)
     contrasena = Column(String(255), nullable=False)
     foto_perfil = Column(Text, nullable=True)
-    token_push = Column(Text, nullable=True) #token para notificaciones push
 
     #relacion con tabla direccion
     direccion_rel = relationship("Direccion", back_populates="usuarios")
     #relaciones inversas con evento, rutina y alerta
-    eventos = relationship("Evento", back_populates="usuarios")
+    eventos = relationship("Evento", back_populates="adulto_mayor")
     # rutinas = relationship("Rutina", back_populates="usuarios")
-    alertas = relationship("Alerta", back_populates="usuarios")
+    alertas = relationship("Alerta", back_populates="adulto_mayor")
 
     #definicion especial para tipo_usuario con check
     __table_args__ = (
@@ -116,7 +115,7 @@ class Evento(Base):
     tipo_evento = Column(SmallInteger, nullable=False, index=True)
 
     #relacion con usuario
-    usuarios = relationship("Usuario", back_populates="eventos")
+    adulto_mayor = relationship("Usuario", back_populates="eventos")
 
     #check para tipo_evento: los limites de int que tendra
     __table_args__ = (
@@ -130,7 +129,56 @@ class Evento(Base):
 
 #########################################################################################
 
-#tabla rutina
+#tabla alerta
+#creado por david el 27/04
+#modificada por david el 02/05
+class Alerta(Base):
+    __tablename__ = "ALERTA"
+
+    #diccionario de tipos de eventos
+    TIPOS_ALERTA = {
+        1: "Zona Segura",
+        2: "Inactividad",
+        3: "Caída",
+        4: "SOS"
+    }
+
+    #diccionario de estados de alerta
+    ESTADOS_ALERTA = {
+        0: "No entregada",
+        1: "Entregada"
+    }
+
+    id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
+    usuario_id = Column(BigInteger, ForeignKey("USUARIO.id"), nullable=False, index=True)
+    fecha_hora = Column(DateTime, server_default=func.now(), nullable=False, index=True)
+    ubicacion = Column(Text, nullable=False) #se puede guardar como string
+    mensaje = Column(Text, nullable=False)
+    tipo_alerta = Column(SmallInteger, nullable=False, index=True)
+    estado_alerta = Column(SmallInteger, nullable=False, index=True, default=0) #0 no entregada, 1 entregada
+
+    #relacion con usuario
+    adulto_mayor = relationship("Usuario", back_populates="alertas")
+
+    #checks para tipo_alerta y estado_alerta
+    __table_args__ = (
+        CheckConstraint("tipo_alerta BETWEEN 1 AND 4", name="check_tipo_alerta_valido"),
+        CheckConstraint("estado_alerta BETWEEN 0 AND 1", name="check_estado_alerta_valido"),
+    )
+
+    #propiedad para leer el string de tipo_evento
+    @property
+    def tipo_alerta_nombre(self):
+        return self.TIPOS_ALERTA.get(self.tipo_alerta, "Desconocido")
+
+    #propiedad para leer el string de estado_alerta
+    @property
+    def estado_alerta_nombre(self):
+        return self.ESTADOS_ALERTA.get(self.estado_alerta, "Desconocido")
+
+#########################################################################################
+
+#tabla rutina (NO IMPLEMENTADA EN ESTE PROTOTIPO)
 #creada por david el 27/04
 # class Rutina(Base):
 #     __tablename__ = "RUTINA"
@@ -180,52 +228,3 @@ class Evento(Base):
 #     __table_args__ = (
 #         UniqueConstraint("rutina_id", "dia", "hora", name="uq_rutina_dia_hora"),
 #     )
-
-#########################################################################################
-
-#tabla alerta
-#creado por david el 27/04
-#modificada por david el 02/05
-class Alerta(Base):
-    __tablename__ = "ALERTA"
-
-    #diccionario de tipos de eventos
-    TIPOS_ALERTA = {
-        1: "Zona Segura",
-        2: "Inactividad",
-        3: "Caída",
-        4: "SOS"
-    }
-
-    # #diccionario de estados de alerta
-    # ESTADOS_ALERTA = {
-    #     0: "No entregada",
-    #     1: "Entregada"
-    # }
-
-    id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
-    usuario_id = Column(BigInteger, ForeignKey("USUARIO.id"), nullable=False, index=True)
-    fecha_hora = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
-    ubicacion = Column(Text, nullable=False) #se puede guardar como string
-    mensaje = Column(Text, nullable=False)
-    tipo_alerta = Column(SmallInteger, nullable=False, index=True)
-    #estado_alerta = Column(SmallInteger, nullable=False, index=True, default=0) #0 no entregada, 1 entregada
-
-    #relacion con usuario
-    usuarios = relationship("Usuario", back_populates="alertas")
-
-    #checks para tipo_alerta y estado_alerta
-    __table_args__ = (
-        CheckConstraint("tipo_alerta BETWEEN 1 AND 4", name="check_tipo_alerta_valido"),
-        #CheckConstraint("estado_alerta BETWEEN 0 AND 1", name="check_estado_alerta_valido"),
-    )
-
-    #propiedad para leer el string de tipo_evento
-    @property
-    def tipo_alerta_nombre(self):
-        return self.TIPOS_ALERTA.get(self.tipo_alerta, "Desconocido")
-
-    #propiedad para leer el string de estado_alerta
-    # @property
-    # def estado_alerta_nombre(self):
-    #     return self.ESTADOS_ALERTA.get(self.estado_alerta, "Desconocido")

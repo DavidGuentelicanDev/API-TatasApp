@@ -9,7 +9,6 @@
 
 # servicio para crear una nueva alerta
 # creado por Ale el 02/05/2025
-
 from sqlalchemy.orm import Session
 from app.models import Alerta
 from app.schemas import AlertaCreate

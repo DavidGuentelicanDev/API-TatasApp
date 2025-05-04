@@ -2,15 +2,15 @@
 # Creado por david el 15/04
 from pydantic import BaseModel
 from app.models import Familiar, Usuario
-from app.utils.notifications import enviar_notificacion_push
+#from app.utils.notifications import enviar_notificacion_push
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError
 import psycopg2
 from psycopg2 import errors
 from app.services.dependencies import get_db
-from app.models import Usuario, Direccion, Familiar, Evento
+from app.models import Usuario, Direccion, Familiar, Evento, Alerta
 from app.schemas import (
     UsuarioOut,
     UsuarioCreate,
@@ -19,10 +19,11 @@ from app.schemas import (
     RespuestaLoginErronea,
     ContactosRegistrados,
     FamiliarCreate,
-    EventoCreate,
-    TokenPushIn,
     FamiliarOut,
-    UsuarioFamiliarOut
+    UsuarioFamiliarOut,
+    #TokenPushIn,
+    AlertaOut,
+    EventoCreate,
 )
 from app.auth.hashing import get_hash_contrasena
 from app.auth.auth import autentificar_usuario
@@ -271,7 +272,7 @@ def crear_evento(evento: EventoCreate, db: Session = Depends(get_db)):
 ######################################################################################################
 
 # ruta POST para crear ALARMAS
-#Envía notificacion a familiar si tiene token
+#Envía notificacion a familiar si tiene token (PENDIENTE)
 # creada por Ale 02/05/2025
 @alertas_router.post("/crear-alerta", status_code=status.HTTP_201_CREATED)
 def registrar_alerta(alerta: AlertaCreate, db: Session = Depends(get_db)):
@@ -284,10 +285,12 @@ def registrar_alerta(alerta: AlertaCreate, db: Session = Depends(get_db)):
 
         for f in familiares:
             familiar_usuario = db.query(Usuario).filter(Usuario.id == f.familiar_id).first()
-            if familiar_usuario and familiar_usuario.token_push:
-                titulo = "Alerta de emergencia"
-                cuerpo = f"Se ha generado una alerta: {nueva_alerta.tipo_alerta_nombre}"
-                enviar_notificacion_push(familiar_usuario.token_push, titulo, cuerpo)
+
+            if familiar_usuario:
+                # Cuerpo del mensaje (mensaje + link a ubicación si existe)
+                cuerpo = nueva_alerta.mensaje
+                if nueva_alerta.ubicacion:
+                    cuerpo += f"\nUbicación: https://maps.google.com/?q={nueva_alerta.ubicacion}"
 
         # 3. Respuesta exitosa
         return crear_respuesta_json(
@@ -303,19 +306,26 @@ def registrar_alerta(alerta: AlertaCreate, db: Session = Depends(get_db)):
             detail=f"Error al registrar alerta: {str(e)}"
         )
 
-# POST PARA REGISTRATR TOKEN
-# creada por Ale 02/05/2025
-@usuarios_router.post("/registrar_token_push", status_code=200)
-def registrar_token_push(data: TokenPushIn, db: Session = Depends(get_db)):
-    usuario = db.query(Usuario).filter(Usuario.id == data.id_usuario).first()
+# GET para obtener las alertas asociadas al adulto mayor de un familiar en estado=0
+# Creado por Ale el 04/05/2025
+@alertas_router.get("/obtener-alertas-pendientes/{id_familiar}", response_model=List[AlertaOut])
+def obtener_alertas_por_familiar(id_familiar: int, db: Session = Depends(get_db)):
+    try:
+        relacion = db.query(Familiar).filter(Familiar.familiar_id == id_familiar).first()
+        if not relacion:
+            raise HTTPException(status_code=404, detail="No se encontró relación con adulto mayor")
 
-    if not usuario:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        adulto_mayor_id = relacion.adulto_mayor_id
 
-    usuario.token_push = data.token_push
-    db.commit()
+        alertas = db.query(Alerta).filter(
+            Alerta.usuario_id == adulto_mayor_id,
+            Alerta.estado_alerta == 0  # Estado 0 indica alerta pendiente
+        ).order_by(Alerta.id.asc()).all()
 
-    return {
-        "status": "success",
-        "message": "Token push registrado correctamente"
-    }
+        return alertas  # FastAPI lo formatea automáticamente usando AlertaOut
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener alertas del familiar: {str(e)}"
+        )

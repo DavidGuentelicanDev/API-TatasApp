@@ -9,14 +9,13 @@ from app.utils.helpers import (
     validador_contrasena,
     validador_formato_correo,
     validador_formato_telefono,
-    validador_fecha_futura, ############# agregado por andrea 29/04/2025
-    validador_opcion_en_lista  ############# agregado por andrea 29/04/2025
+    validador_fecha_futura, #agregado por andrea 29/04/2025
+    validador_opcion_en_lista #agregado por andrea 29/04/2025
 )
 
 
 #clases para mostrar el usuario con direccion (prueba)
 #creadas por david el 16/04
-
 class DireccionOut(BaseModel):
     direccion_texto: str
     adicional: Optional[str]
@@ -131,14 +130,12 @@ class ContactosRegistrados(BaseModel):
 
 #esquema para guardar familiares
 #creado por david el 25/04
-
 class FamiliarCreate(BaseModel):
     adulto_mayor_id: int
     familiar_id: int
 
 #esquemas para obtener los familiares registrados en el grupo familiar del adulto mayor
 #creado por david el 03/05
-
 class UsuarioFamiliarOut(BaseModel):
     id_usuario: int
     nombres: str
@@ -161,7 +158,6 @@ class FamiliarOut(BaseModel):
 
 #esquema para crear evento
 #creado por Andrea el 29/04/2025
-
 class EventoCreate(BaseModel):
     usuario_id: int
     nombre: str
@@ -177,7 +173,6 @@ class EventoCreate(BaseModel):
 
 # esquema para crear una alerta
 # creado por Ale el 02/05/2025
-
 class AlertaCreate(BaseModel):
     usuario_id: int
     ubicacion: str
@@ -187,13 +182,16 @@ class AlertaCreate(BaseModel):
     _validar_campos_str = validador_no_string_vacio('ubicacion', 'mensaje')
     _val_tipo = validador_opcion_en_lista("tipo_alerta", [1, 2, 3, 4])
 
-    
+#esquema para obtener alertas por adulto mayor
+#creado por Ale 04-05-2025
+class AlertaOut(BaseModel):
+    id: int
+    usuario_id: int
+    ubicacion: str
+    mensaje: str
+    tipo_alerta: int
+    fecha_hora: datetime
+    estado_alerta: int
 
-# esquema para registrar el token push de OneSignal
-# creado por Ale el 02/05/2025
-
-class TokenPushIn(BaseModel):
-    id_usuario: int
-    token_push: str
-
-    _validar_campos_str = validador_no_string_vacio('token_push')
+    class Config:
+        from_attributes = True
