@@ -24,6 +24,8 @@ from app.schemas import (
     #TokenPushIn,
     AlertaOut,
     EventoCreate,
+    EstadoAlertaUpdate,
+    EstadoAlertaResponse
 )
 from app.auth.hashing import get_hash_contrasena
 from app.auth.auth import autentificar_usuario
@@ -31,7 +33,8 @@ from app.auth.jwt import crear_token_acceso
 from typing import List
 from app.utils.helpers import (
     verificar_campos_unicos,
-    crear_respuesta_json
+    crear_respuesta_json,
+    #validar_alerta_ya_entregada
 )
 from app.schemas import AlertaCreate
 from app.services.alertas_services import crear_alerta
@@ -65,6 +68,26 @@ def obtener_usuarios(db: Session = Depends(get_db)):
         usuarios_out.append(usuario_dict)
 
     return usuarios_out
+
+#ruta para mostrar usuario completo por id
+#creada por david el 04/05
+@usuarios_router.get("/{usuario_id}", response_model=UsuarioOut)
+def obtener_usuario(usuario_id: int, db: Session = Depends(get_db)):
+    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    return UsuarioOut(
+        nombres=usuario.nombres,
+        apellidos=usuario.apellidos,
+        fecha_nacimiento=usuario.fecha_nacimiento,
+        correo=usuario.correo,
+        telefono=usuario.telefono,
+        tipo_usuario_str=usuario.tipo_usuario_nombre,
+        foto_perfil=usuario.foto_perfil,
+        direccion_rel=usuario.direccion_rel
+    )
 
 #########################################################################################################
 
@@ -328,4 +351,34 @@ def obtener_alertas_por_familiar(id_familiar: int, db: Session = Depends(get_db)
         raise HTTPException(
             status_code=500,
             detail=f"Error al obtener alertas del familiar: {str(e)}"
+        )
+
+#ruta PATCH para actualizar el estado de la alerta
+#creado por david el 04/05
+@alertas_router.patch("/actualizar-estado", response_model=EstadoAlertaResponse, status_code=status.HTTP_200_OK)
+def actualizar_estado_alerta(data: EstadoAlertaUpdate, db: Session = Depends(get_db)):
+    try:
+        alerta = db.query(Alerta).filter(Alerta.id == data.id).first()
+        if not alerta:
+            return EstadoAlertaResponse(
+                status="error",
+                message="Alerta no encontrada"
+            )
+
+        alerta.estado_alerta = data.estado_alerta
+        db.commit()
+        db.refresh(alerta)
+
+        return EstadoAlertaResponse(
+            status="success",
+            message=f"Estado de alerta actualizado correctamente a Entregada ({data.estado_alerta})"
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content=EstadoAlertaResponse(
+                status="error",
+                message=f"Error al actualizar estado de alerta: {str(e)}"
+            ).model_dump()
         )

@@ -195,3 +195,13 @@ class AlertaOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+#esquema para modificar el estado_alerta a 1 (entregada) y respuesta personalizada
+#creado por david 04-05-2025
+class EstadoAlertaUpdate(BaseModel):
+    id: int
+    estado_alerta: int = 1
+
+class EstadoAlertaResponse(BaseModel):
+    status: str
+    message: str
