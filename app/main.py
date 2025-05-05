@@ -4,7 +4,10 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError, HTTPException
 from app.database import Base, engine
-from app.routers import usuarios_router, familiares_router, eventos_router, alertas_router
+from app.routers.usuario import usuarios_router
+from app.routers.familiar import familiares_router
+from app.routers.evento import eventos_router
+from app.routers.alerta import alertas_router
 from app.validations import (
     handler_validacion_excepciones_personalizadas,
     handler_excepciones_http_peronalizadas
