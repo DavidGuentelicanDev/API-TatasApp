@@ -1,9 +1,7 @@
 # Define las rutas principales de la API y agrupa los endpoints por funcionalidades.
 # Creado por david el 15/04
 
-from pydantic import BaseModel
 from app.models import Familiar, Usuario
-#from app.utils.notifications import enviar_notificacion_push
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session, joinedload
@@ -12,19 +10,25 @@ import psycopg2
 from psycopg2 import errors
 from app.services.dependencies import get_db
 from app.models import Usuario, Direccion, Familiar, Evento, Alerta
-from app.schemas import (
+from app.schemas.usuario import (
     UsuarioOut,
     UsuarioCreate,
     UsuarioLogin,
     RespuestaLoginExitoso,
     RespuestaLoginErronea,
-    ContactosRegistrados,
+    ContactosRegistrados
+)
+from app.schemas.familiar import (
     FamiliarCreate,
     FamiliarOut,
-    UsuarioFamiliarOut,
-    #TokenPushIn,
+    UsuarioFamiliarOut
+)
+from app.schemas.evento import (
+    EventoCreate
+)
+from app.schemas.alerta import (
+    AlertaCreate,
     AlertaOut,
-    EventoCreate,
     EstadoAlertaUpdate,
     EstadoAlertaResponse
 )
@@ -37,7 +41,6 @@ from app.utils.helpers import (
     crear_respuesta_json,
     #validar_alerta_ya_entregada
 )
-from app.schemas import AlertaCreate
 from app.services.alertas_services import crear_alerta
 
 

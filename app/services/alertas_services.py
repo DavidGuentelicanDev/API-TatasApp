@@ -11,7 +11,7 @@
 # creado por Ale el 02/05/2025
 from sqlalchemy.orm import Session
 from app.models import Alerta
-from app.schemas import AlertaCreate
+from app.schemas.alerta import AlertaCreate
 
 def crear_alerta(alerta_data: AlertaCreate, db: Session) -> Alerta:
     nueva_alerta = Alerta(
