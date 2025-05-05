@@ -1,5 +1,6 @@
 # Define las rutas principales de la API y agrupa los endpoints por funcionalidades.
 # Creado por david el 15/04
+
 from pydantic import BaseModel
 from app.models import Familiar, Usuario
 #from app.utils.notifications import enviar_notificacion_push
@@ -68,6 +69,24 @@ def obtener_usuarios(db: Session = Depends(get_db)):
         usuarios_out.append(usuario_dict)
 
     return usuarios_out
+
+#ruta get para obtener los usuarios registrados tipo familiar (1)
+#creada por david y andrea el 25/04
+@usuarios_router.get("/contactos-registrados", response_model=List[ContactosRegistrados])
+def contactos_familiares_registrados(db: Session = Depends(get_db)):
+    usuarios_familiares = db.query(Usuario).filter(Usuario.tipo_usuario == 2).all()
+
+    #se construye la respuesta agregando tipo_usuario_str a cada usuario
+    contactos_registrados_out = []
+    for usuario in usuarios_familiares:
+        usuario_dict = ContactosRegistrados(
+            id_usuario=usuario.id,
+            telefono=usuario.telefono,
+            tipo_usuario=usuario.tipo_usuario
+        )
+        contactos_registrados_out.append(usuario_dict)
+
+    return contactos_registrados_out
 
 #ruta para mostrar usuario completo por id
 #creada por david el 04/05
@@ -172,26 +191,6 @@ async def login(datos_login: UsuarioLogin, db: Session = Depends(get_db)):
     return JSONResponse(status_code=200, content=respuesta.model_dump())
 
 #######################################################################################################
-
-#ruta get para obtener los usuarios registrados tipo familiar (1)
-#creada por david y andrea el 25/04
-@usuarios_router.get("/contactos-registrados", response_model=List[ContactosRegistrados])
-def contactos_familiares_registrados(db: Session = Depends(get_db)):
-    usuarios_familiares = db.query(Usuario).filter(Usuario.tipo_usuario == 2).all()
-
-    #se construye la respuesta agregando tipo_usuario_str a cada usuario
-    contactos_registrados_out = []
-    for usuario in usuarios_familiares:
-        usuario_dict = ContactosRegistrados(
-            id_usuario=usuario.id,
-            telefono=usuario.telefono,
-            tipo_usuario=usuario.tipo_usuario
-        )
-        contactos_registrados_out.append(usuario_dict)
-
-    return contactos_registrados_out
-
-####################################################################################################
 
 #ruta post para guardar familiares
 #creada por david el 25/04
