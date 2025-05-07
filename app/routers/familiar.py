@@ -103,3 +103,39 @@ def obtener_familiares_adulto_mayor(adulto_mayor_id: int, db: Session = Depends(
             status_code=500,
             detail=f"Error al obtener los familiares del adulto mayor: {str(e)}"
         )
+
+#########################################################################################################
+
+#BORRAR FAMILIAR
+
+#ruta delete para eliminar un familiar asociado por parte del adulto mayor
+#creado por david el 07/05
+@familiares_router.delete("/eliminar-familiar/{adulto_mayor_id}/{familiar_id}", status_code=status.HTTP_200_OK)
+def eliminar_familiar(adulto_mayor_id: int, familiar_id: int, db: Session = Depends(get_db)):
+    try:
+        relacion = db.query(Familiar).filter(
+            Familiar.adulto_mayor_id == adulto_mayor_id,
+            Familiar.familiar_id == familiar_id
+        ).first()
+
+        if not relacion:
+            raise HTTPException(
+                status_code=404,
+                detail="No se encontró la relación entre el adulto mayor y el familiar"
+            )
+
+        db.delete(relacion)
+        db.commit()
+
+        return crear_respuesta_json(
+            status_code=200,
+            status="success",
+            message="Familiar eliminado correctamente del grupo familiar"
+        )
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al eliminar familiar: {str(e)}"
+        )
