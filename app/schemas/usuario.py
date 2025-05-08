@@ -73,7 +73,7 @@ class UsuarioOut(BaseModel):
     fecha_nacimiento: date
     correo: str
     telefono: str
-    tipo_usuario_str: str #cambiado para mostrar el nombre del tipo_usuario
+    tipo_usuario: int #cambiado para mostrar el nombre del tipo_usuario
     foto_perfil: Optional[str]
     direccion_rel: DireccionOut
 
