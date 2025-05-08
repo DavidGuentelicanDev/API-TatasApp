@@ -90,6 +90,30 @@ def obtener_alertas_por_familiar(id_familiar: int, db: Session = Depends(get_db)
             detail=f"Error al obtener alertas del familiar: {str(e)}"
         )
 
+#ruta GET para obtener todas las alertas de un adulto mayor relacionado en estado = 1 para el historial
+#creado por david el 08/05
+@alertas_router.get("/obtener-alertas-historial/{id_familiar}", response_model=List[AlertaOut])
+def obtener_alertas_por_familiar(id_familiar: int, db: Session = Depends(get_db)):
+    try:
+        relacion = db.query(Familiar).filter(Familiar.familiar_id == id_familiar).first()
+        if not relacion:
+            raise HTTPException(status_code=404, detail="No se encontró relación con adulto mayor")
+
+        adulto_mayor_id = relacion.adulto_mayor_id
+
+        alertas = db.query(Alerta).filter(
+            Alerta.usuario_id == adulto_mayor_id,
+            Alerta.estado_alerta == 1  #estado indica alerta ya notificadada (entregada)
+        ).order_by(Alerta.id.asc()).all()
+
+        return alertas
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener alertas del familiar: {str(e)}"
+        )
+
 #############################################################################################################
 
 #ACTUALIZAR ALERTA
