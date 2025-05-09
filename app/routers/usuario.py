@@ -136,7 +136,6 @@ def obtener_usuario(usuario_id: int, db: Session = Depends(get_db)):
         correo=usuario.correo,
         telefono=usuario.telefono,
         tipo_usuario=usuario.tipo_usuario,
-        foto_perfil=usuario.foto_perfil,
         direccion_rel=usuario.direccion_rel
     )
 

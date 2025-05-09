@@ -74,7 +74,6 @@ class UsuarioOut(BaseModel):
     correo: str
     telefono: str
     tipo_usuario: int #cambiado para mostrar el nombre del tipo_usuario
-    foto_perfil: Optional[str]
     direccion_rel: DireccionOut
 
     class Config:
