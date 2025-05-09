@@ -59,3 +59,16 @@ def listar_eventos(db: Session = Depends(get_db)):
         )
         for e in eventos
     ]
+# ruta delete para eliminar eventos
+# creada por Andrea 9/05/2025
+@eventos_router.delete("/eliminar/{evento_id}", status_code=200)
+def eliminar_evento(evento_id: int, db: Session = Depends(get_db)):
+    evento = db.query(Evento).filter(Evento.id == evento_id).first()
+
+    if not evento:
+        raise HTTPException(status_code=404, detail="Evento no encontrado")
+
+    db.delete(evento)
+    db.commit()
+
+    return {"status": "success", "message": "Evento eliminado correctamente"}
