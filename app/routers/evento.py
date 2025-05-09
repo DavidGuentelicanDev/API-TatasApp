@@ -4,7 +4,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.services.dependencies import get_db
-from app.models import Evento
+from app.models import Evento, Familiar
 from app.schemas.evento import (
     EventoCreate,
     EventoOut
@@ -101,3 +101,29 @@ def modificar_evento(evento_id: int, datos: EventoUpdate, db: Session = Depends(
         "message": "Evento modificado correctamente",
         "evento_id": evento.id
     }
+# ruta para traer eventos del adulto mayor segun id familiar
+# creada por Andrea 9/05/2025
+@eventos_router.get("/listar-por-familiar", response_model=List[EventoOut])
+def listar_eventos_por_familiar(
+    familiar_id: int = Query(..., description="ID del usuario familiar"),
+    db: Session = Depends(get_db)
+):
+    relacion = db.query(Familiar).filter(Familiar.familiar_id == familiar_id).first()
+
+    if not relacion:
+        raise HTTPException(status_code=404, detail="No se encontró adulto mayor asociado")
+
+    eventos = db.query(Evento).filter(Evento.usuario_id == relacion.adulto_mayor_id).all()
+
+    return [
+        EventoOut(
+            id=e.id,
+            usuario_id=e.usuario_id,
+            nombre=e.nombre,
+            descripcion=e.descripcion,
+            fecha_hora=e.fecha_hora,
+            tipo_evento=e.tipo_evento,
+            tipo_evento_nombre=e.tipo_evento_nombre
+        )
+        for e in eventos
+    ]
