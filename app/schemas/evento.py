@@ -38,3 +38,13 @@ class EventoOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+class EventoUpdate(BaseModel):
+    nombre: str
+    descripcion: str | None = None
+    fecha_hora: datetime
+    tipo_evento: int
+
+    _validar_campos_str = validador_no_string_vacio('nombre')
+    _val_fecha = validador_fecha_futura("fecha_hora")
+    _val_tipo = validador_opcion_en_lista("tipo_evento", [1, 2, 3, 4])

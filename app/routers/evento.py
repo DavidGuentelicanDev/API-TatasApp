@@ -10,6 +10,7 @@ from app.schemas.evento import (
     EventoOut
 )
 from typing import List
+from app.schemas.evento import EventoUpdate
 
 
 #direccion de todas las rutas de eventos
@@ -45,8 +46,12 @@ def crear_evento(evento: EventoCreate, db: Session = Depends(get_db)):
 # ruta get para listar eventos
 # creada por Andrea 9/05/2025
 @eventos_router.get("/listar", response_model=List[EventoOut])
-def listar_eventos(db: Session = Depends(get_db)):
-    eventos = db.query(Evento).all()
+def listar_eventos(
+    usuario_id: int = Query(..., description="ID del usuario logueado"),
+    db: Session = Depends(get_db)
+):
+    eventos = db.query(Evento).filter(Evento.usuario_id == usuario_id).all()
+
     return [
         EventoOut(
             id=e.id,
@@ -59,6 +64,8 @@ def listar_eventos(db: Session = Depends(get_db)):
         )
         for e in eventos
     ]
+
+
 # ruta delete para eliminar eventos
 # creada por Andrea 9/05/2025
 @eventos_router.delete("/eliminar/{evento_id}", status_code=200)
@@ -72,3 +79,24 @@ def eliminar_evento(evento_id: int, db: Session = Depends(get_db)):
     db.commit()
 
     return {"status": "success", "message": "Evento eliminado correctamente"}
+
+# ruta para modificar eventos
+# creada por Andrea 9/05/2025
+@eventos_router.put("/modificar/{evento_id}", status_code=200)
+def modificar_evento(evento_id: int, datos: EventoUpdate, db: Session = Depends(get_db)):
+    evento = db.query(Evento).filter(Evento.id == evento_id).first()
+
+    if not evento:
+        raise HTTPException(status_code=404, detail="Evento no encontrado")
+
+    for campo, valor in datos.model_dump().items():
+        setattr(evento, campo, valor)
+
+    db.commit()
+    db.refresh(evento)
+
+    return {
+        "status": "success",
+        "message": "Evento modificado correctamente",
+        "evento_id": evento.id
+    }
