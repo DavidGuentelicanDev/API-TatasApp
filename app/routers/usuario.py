@@ -13,7 +13,8 @@ from app.schemas.usuario import (
     UsuarioLogin,
     RespuestaLoginExitoso,
     RespuestaLoginErronea,
-    ContactosRegistrados
+    ContactosRegistrados,
+    FotoPerfil
 )
 from app.auth.hashing import get_hash_contrasena
 from app.auth.auth import autentificar_usuario
@@ -177,3 +178,34 @@ async def login(datos_login: UsuarioLogin, db: Session = Depends(get_db)):
     respuesta = RespuestaLoginExitoso(contenido=contenido)
 
     return JSONResponse(status_code=200, content=respuesta.model_dump())
+
+##################################################################################################
+
+#ACTUALIZAR USUARIO
+
+#ruta PATCH para actualizar la foto de perfil
+#creado por david el 09/05
+@usuarios_router.patch("/editar-foto-perfil", status_code=status.HTTP_200_OK)
+def editar_foto_perfil(data: FotoPerfil, db: Session = Depends(get_db)):
+    try:
+        usuario = db.query(Usuario).filter(Usuario.id == data.id).first()
+        if not usuario:
+            return JSONResponse({
+                "status": "error",
+                "message": "Usuario no encontrado"
+            })
+
+        usuario.foto_perfil = data.foto_perfil
+        db.commit()
+        db.refresh(usuario)
+
+        return JSONResponse({
+            "status": "success",
+            "message": "Foto de perfil editada correctamente"
+        })
+
+    except Exception as e:
+        return JSONResponse({
+            "status": "error",
+            "message": f"Error al editar la foto de perfil: {str(e)}"
+        })

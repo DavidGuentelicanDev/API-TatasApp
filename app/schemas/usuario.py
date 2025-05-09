@@ -123,3 +123,13 @@ class RespuestaLoginExitoso(BaseModel):
 class RespuestaLoginErronea(BaseModel):
     status: str = "error"
     message: str = "Credenciales inválidas"
+
+#######################################################################################################
+
+#ACTUALIZAR USUARIO
+
+#esquema para editar la foto de perfil
+#creado por david el 09/05
+class FotoPerfil(BaseModel):
+    id: int
+    foto_perfil: str
