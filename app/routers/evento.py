@@ -6,8 +6,10 @@ from sqlalchemy.orm import Session
 from app.services.dependencies import get_db
 from app.models import Evento
 from app.schemas.evento import (
-    EventoCreate
+    EventoCreate,
+    EventoOut
 )
+from typing import List
 
 
 #direccion de todas las rutas de eventos
@@ -16,7 +18,7 @@ eventos_router = APIRouter(prefix="/eventos", tags=["Eventos"])
 
 #CREAR EVENTO
 
-# ruta get para crear eventos
+# ruta post para crear eventos
 # creada por Andrea 29/04/2025
 @eventos_router.post("/crear-evento", status_code=status.HTTP_201_CREATED)
 def crear_evento(evento: EventoCreate, db: Session = Depends(get_db)):
@@ -38,3 +40,22 @@ def crear_evento(evento: EventoCreate, db: Session = Depends(get_db)):
             status_code=500,
             detail=f"Error al crear evento: {str(e)}"
         )
+
+
+# ruta get para listar eventos
+# creada por Andrea 9/05/2025
+@eventos_router.get("/listar", response_model=List[EventoOut])
+def listar_eventos(db: Session = Depends(get_db)):
+    eventos = db.query(Evento).all()
+    return [
+        EventoOut(
+            id=e.id,
+            usuario_id=e.usuario_id,
+            nombre=e.nombre,
+            descripcion=e.descripcion,
+            fecha_hora=e.fecha_hora,
+            tipo_evento=e.tipo_evento,
+            tipo_evento_nombre=e.tipo_evento_nombre
+        )
+        for e in eventos
+    ]
