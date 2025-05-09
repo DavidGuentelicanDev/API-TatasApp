@@ -11,6 +11,7 @@ from app.schemas.evento import (
 )
 from typing import List
 from app.schemas.evento import EventoUpdate
+from fastapi import Query
 
 
 #direccion de todas las rutas de eventos

@@ -37,7 +37,7 @@ class EventoOut(BaseModel):
     tipo_evento_nombre: str
 
     class Config:
-        orm_mode = True
+        from_attributes  = True
 
 class EventoUpdate(BaseModel):
     nombre: str
