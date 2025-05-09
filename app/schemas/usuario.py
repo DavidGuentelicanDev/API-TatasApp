@@ -86,6 +86,12 @@ class ContactosRegistrados(BaseModel):
     telefono: str
     tipo_usuario: int
 
+#esquema para consultar la foto de perfil (separado de la consulta general de usuario)
+#creado por david el 09/05
+class FotoPerfilOut(BaseModel):
+    id_usuario: int
+    foto_perfil: Optional[str]
+
 ###########################################################################################
 
 #LOGIN DE USUARIO
@@ -129,6 +135,6 @@ class RespuestaLoginErronea(BaseModel):
 
 #esquema para editar la foto de perfil
 #creado por david el 09/05
-class FotoPerfil(BaseModel):
+class FotoPerfilUpdate(BaseModel):
     id: int
     foto_perfil: str

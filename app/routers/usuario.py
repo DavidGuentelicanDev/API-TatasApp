@@ -14,7 +14,8 @@ from app.schemas.usuario import (
     RespuestaLoginExitoso,
     RespuestaLoginErronea,
     ContactosRegistrados,
-    FotoPerfil
+    FotoPerfilUpdate,
+    FotoPerfilOut
 )
 from app.auth.hashing import get_hash_contrasena
 from app.auth.auth import autentificar_usuario
@@ -79,29 +80,6 @@ def registrar_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db)):
 
 #OBTENER USUARIOS
 
-#ruta de prueba para usuarios
-#creada por david el 16/04
-# @usuarios_router.get("/", response_model=List[UsuarioOut])
-# def obtener_usuarios(db: Session = Depends(get_db)):
-#     usuarios = db.query(Usuario).all()
-
-#     #se construye la respuesta agregando tipo_usuario_str a cada usuario
-#     usuarios_out = []
-#     for usuario in usuarios:
-#         usuario_dict = UsuarioOut(
-#             nombres=usuario.nombres,
-#             apellidos=usuario.apellidos,
-#             fecha_nacimiento=usuario.fecha_nacimiento,
-#             correo=usuario.correo,
-#             telefono=usuario.telefono,
-#             tipo_usuario=usuario.tipo_usuario,
-#             foto_perfil=usuario.foto_perfil,
-#             direccion_rel=usuario.direccion_rel
-#         )
-#         usuarios_out.append(usuario_dict)
-
-#     return usuarios_out
-
 #ruta get para obtener los usuarios registrados tipo familiar (1)
 #creada por david y andrea el 25/04
 @usuarios_router.get("/contactos-registrados", response_model=List[ContactosRegistrados])
@@ -137,6 +115,20 @@ def obtener_usuario(usuario_id: int, db: Session = Depends(get_db)):
         telefono=usuario.telefono,
         tipo_usuario=usuario.tipo_usuario,
         direccion_rel=usuario.direccion_rel
+    )
+
+#ruta para obtener la foto de perfil por id (GET)
+#creado por david el 09/05
+@usuarios_router.get("/foto-perfil/{usuario_id}", response_model=FotoPerfilOut)
+def obtener_foto_perfil(usuario_id: int, db: Session = Depends(get_db)):
+    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    return FotoPerfilOut(
+        id_usuario=usuario.id,
+        foto_perfil=usuario.foto_perfil
     )
 
 #########################################################################################################
@@ -185,7 +177,7 @@ async def login(datos_login: UsuarioLogin, db: Session = Depends(get_db)):
 #ruta PATCH para actualizar la foto de perfil
 #creado por david el 09/05
 @usuarios_router.patch("/editar-foto-perfil", status_code=status.HTTP_200_OK)
-def editar_foto_perfil(data: FotoPerfil, db: Session = Depends(get_db)):
+def editar_foto_perfil(data: FotoPerfilUpdate, db: Session = Depends(get_db)):
     try:
         usuario = db.query(Usuario).filter(Usuario.id == data.id).first()
         if not usuario:
