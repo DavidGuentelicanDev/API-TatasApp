@@ -15,7 +15,8 @@ from app.schemas.usuario import (
     RespuestaLoginErronea,
     ContactosRegistrados,
     FotoPerfilUpdate,
-    FotoPerfilOut
+    FotoPerfilOut,
+    UsuarioUpdate
 )
 from app.auth.hashing import get_hash_contrasena
 from app.auth.auth import autentificar_usuario
@@ -199,4 +200,50 @@ def editar_foto_perfil(data: FotoPerfilUpdate, db: Session = Depends(get_db)):
         return JSONResponse({
             "status": "error",
             "message": f"Error al editar la foto de perfil: {str(e)}"
+        })
+
+#ruta PATCH para actualizar datos de usuario (nombres, apellidos, fecha nacimiento, telefono, direccion)
+#creado por david el 09/05
+@usuarios_router.patch("/editar-datos", status_code=status.HTTP_200_OK)
+def editar_datos_usuario(data: UsuarioUpdate, db: Session = Depends(get_db)):
+    try:
+        usuario = db.query(Usuario).filter(Usuario.id == data.id).first()
+
+        if not usuario:
+            return JSONResponse({
+                "status": "error",
+                "message": "Usuario no encontrado"
+            })
+
+        #actualizar datos del usuario
+        usuario.nombres = data.nombres
+        usuario.apellidos = data.apellidos
+        usuario.fecha_nacimiento = data.fecha_nacimiento
+        usuario.telefono = data.telefono
+
+        #actualizar datos de direccion
+        direccion = db.query(Direccion).filter(Direccion.id == usuario.direccion_id).first()
+
+        if not direccion:
+            return JSONResponse({
+                "status": "error",
+                "message": "Dirección no encontrada"
+            })
+
+        direccion.direccion_texto = data.direccion.direccion_texto
+        direccion.adicional = data.direccion.adicional
+
+        db.commit()
+        db.refresh(usuario)
+
+        return JSONResponse({
+            "status": "success",
+            "message": "Datos de usuario actualizados correctamente"
+        })
+
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({
+            "status": "error",
+            "message": f"Error al editar el usuario: {str(e)}"
         })

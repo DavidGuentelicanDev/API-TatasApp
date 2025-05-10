@@ -138,3 +138,22 @@ class RespuestaLoginErronea(BaseModel):
 class FotoPerfilUpdate(BaseModel):
     id: int
     foto_perfil: str
+
+#esquema para actualizar info de usuario (nombre y apellido, fecha nacimiento, telefono, direccion)
+#creado por david el 09/05
+class DireccionUpdate(BaseModel):
+    direccion_texto: str
+    adicional: Optional[str]
+
+    _validar_campos_str = validador_no_string_vacio('direccion_texto')
+
+class UsuarioUpdate(BaseModel):
+    id: int
+    nombres: str
+    apellidos: str
+    fecha_nacimiento: date
+    telefono: str
+    direccion: DireccionUpdate
+
+    _validar_campos_str = validador_no_string_vacio('nombres', 'apellidos', 'telefono')
+    _validar_formato_telefono = validador_formato_telefono('telefono')
