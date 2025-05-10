@@ -139,7 +139,7 @@ class FotoPerfilUpdate(BaseModel):
     id: int
     foto_perfil: str
 
-#esquema para actualizar info de usuario (nombre y apellido, fecha nacimiento, telefono, direccion)
+#esquemas para actualizar info de usuario (nombre y apellido, fecha nacimiento, telefono, direccion)
 #creado por david el 09/05
 class DireccionUpdate(BaseModel):
     direccion_texto: str
@@ -157,3 +157,12 @@ class UsuarioUpdate(BaseModel):
 
     _validar_campos_str = validador_no_string_vacio('nombres', 'apellidos', 'telefono')
     _validar_formato_telefono = validador_formato_telefono('telefono')
+
+#esquema para editar correo
+#creado por david el 10/05
+class CorreoUpdate(BaseModel):
+    id: int
+    correo: str
+
+    _validar_campos_str = validador_no_string_vacio('correo')
+    _validar_formato_correo = validador_formato_correo('correo')
