@@ -137,7 +137,7 @@ class RespuestaLoginErronea(BaseModel):
 #creado por david el 09/05
 class FotoPerfilUpdate(BaseModel):
     id: int
-    foto_perfil: str
+    foto_perfil: Optional[str]
 
 #esquemas para actualizar info de usuario (nombre y apellido, fecha nacimiento, telefono, direccion)
 #creado por david el 09/05
