@@ -331,3 +331,47 @@ def editar_contrasena(data: ContrasenaUpdate, db: Session = Depends(get_db)):
             "status": "error",
             "message": f"Error al editar la contraseña: {str(e)}"
         })
+
+#######################################################################################################
+
+#ELIMINAR USUARIO
+
+#ruta DELETE para eliminar usuario
+#creado por david el 11/05
+@usuarios_router.delete("/eliminar-usuario/{id}", status_code=status.HTTP_200_OK)
+def eliminar_usuario(id: int, db: Session = Depends(get_db)):
+    try:
+        usuario = db.query(Usuario).filter(Usuario.id == id).first()
+
+        if not usuario:
+            return JSONResponse({
+                "status": "error",
+                "message": "Usuario no encontrado"
+            })
+
+        #obtener el id de la direccion asociada
+        direccion_id = usuario.direccion_id
+
+        #eliminar al usuario
+        db.delete(usuario)
+        db.flush() #asegura que se libere la fk para luego poder borrar la direccion
+
+        #eliminar la direccion asociada
+        direccion = db.query(Direccion).filter(Direccion.id == direccion_id).first()
+
+        if direccion:
+            db.delete(direccion)
+
+        db.commit()
+
+        return JSONResponse({
+            "status": "success",
+            "message": "Usuario y dirección eliminados correctamente"
+        })
+
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({
+            "status": "error",
+            "message": f"Error al eliminar usuario: {str(e)}"
+        })
