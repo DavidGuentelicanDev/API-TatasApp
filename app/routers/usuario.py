@@ -217,6 +217,14 @@ def editar_datos_usuario(data: UsuarioUpdate, db: Session = Depends(get_db)):
                 "message": "Usuario no encontrado"
             })
 
+        #validar que telefono no este repetido
+        verificar_campos_unicos(
+            db=db,
+            modelo=Usuario,
+            campos={"telefono": data.telefono},
+            exclusion_id=data.id
+        )
+
         #actualizar datos del usuario
         usuario.nombres = data.nombres
         usuario.apellidos = data.apellidos
@@ -243,6 +251,10 @@ def editar_datos_usuario(data: UsuarioUpdate, db: Session = Depends(get_db)):
             "message": "Datos de usuario actualizados correctamente"
         })
 
+    except HTTPException as e:
+        db.rollback()
+        raise e
+
     except Exception as e:
         db.rollback()
         return JSONResponse({
@@ -263,6 +275,14 @@ def editar_correo(data: CorreoUpdate, db: Session = Depends(get_db)):
                 "message": "Usuario no encontrado"
             })
 
+        #validar que correo no este repetido
+        verificar_campos_unicos(
+            db=db,
+            modelo=Usuario,
+            campos={"correo": data.correo},
+            exclusion_id=data.id
+        )
+
         usuario.correo = data.correo
         db.commit()
         db.refresh(usuario)
@@ -271,6 +291,10 @@ def editar_correo(data: CorreoUpdate, db: Session = Depends(get_db)):
             "status": "success",
             "message": "Correo editado correctamente"
         })
+
+    except HTTPException as e:
+        db.rollback()
+        raise e
 
     except Exception as e:
         return JSONResponse({
