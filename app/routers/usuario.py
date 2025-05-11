@@ -17,7 +17,8 @@ from app.schemas.usuario import (
     FotoPerfilUpdate,
     FotoPerfilOut,
     UsuarioUpdate,
-    CorreoUpdate
+    CorreoUpdate,
+    ContrasenaUpdate
 )
 from app.auth.hashing import get_hash_contrasena
 from app.auth.auth import autentificar_usuario
@@ -274,5 +275,35 @@ def editar_correo(data: CorreoUpdate, db: Session = Depends(get_db)):
     except Exception as e:
         return JSONResponse({
             "status": "error",
-            "message": f"Error al editar la foto de perfil: {str(e)}"
+            "message": f"Error al editar el correo: {str(e)}"
+        })
+
+#ruta PATCH para editar contraseña
+#creado por david el 10/05
+@usuarios_router.patch("/editar-contrasena", status_code=status.HTTP_200_OK)
+def editar_contrasena(data: ContrasenaUpdate, db: Session = Depends(get_db)):
+    try:
+        usuario = db.query(Usuario).filter(Usuario.id == data.id).first()
+
+        if not usuario:
+            return JSONResponse({
+                "status": "error",
+                "message": "Usuario no encontrado"
+            })
+
+        contrasena = get_hash_contrasena(data.contrasena)
+
+        usuario.contrasena = contrasena
+        db.commit()
+        db.refresh(usuario)
+
+        return JSONResponse({
+            "status": "success",
+            "message": "Contraseña editada correctamente"
+        })
+
+    except Exception as e:
+        return JSONResponse({
+            "status": "error",
+            "message": f"Error al editar la contraseña: {str(e)}"
         })

@@ -166,3 +166,17 @@ class CorreoUpdate(BaseModel):
 
     _validar_campos_str = validador_no_string_vacio('correo')
     _validar_formato_correo = validador_formato_correo('correo')
+
+#esquema para editar contraseña
+#creado por david el 10/05
+class ContrasenaUpdate(BaseModel):
+    id: int
+    contrasena: str
+
+    _validar_campos_str = validador_no_string_vacio('contrasena')
+    _validar_contrasena = validador_contrasena(
+        campo='contrasena',
+        min_longitud=8,
+        requerir_mayuscula=True,
+        requerir_numero=True
+    )
