@@ -3,17 +3,14 @@
 
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError, HTTPException
-from app.database import Base, engine
+from app.settings.database import Base, engine
 from app.routers.usuario import usuarios_router
 from app.routers.familiar import familiares_router
 from app.routers.evento import eventos_router
 from app.routers.alerta import alertas_router
-from app.validations import (
-    handler_validacion_excepciones_personalizadas,
-    handler_excepciones_http_peronalizadas
-)
+from app.utils.validations import handler_validacion_excepciones_personalizadas, handler_excepciones_http_peronalizadas
 from fastapi.middleware.cors import CORSMiddleware
-from app.config import settings
+from app.settings.config import settings
 
 
 app = FastAPI(title=settings.PROJECT_NAME) #inicializar la app

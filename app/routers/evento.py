@@ -3,12 +3,9 @@
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.services.dependencies import get_db
+from app.settings.dependencies import get_db
 from app.models import Evento, Familiar
-from app.schemas.evento import (
-    EventoCreate,
-    EventoOut
-)
+from app.schemas.evento import EventoCreate, EventoOut
 from typing import List
 from app.schemas.evento import EventoUpdate
 from fastapi import Query

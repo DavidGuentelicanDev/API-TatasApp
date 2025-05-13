@@ -3,7 +3,7 @@
 
 from jose import jwt, JWTError
 from datetime import datetime, timezone
-from app.config import settings
+from app.settings.config import settings
 from fastapi import HTTPException, status
 
 

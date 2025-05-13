@@ -5,6 +5,7 @@ from fastapi import Request, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+
 #handler para manejar errores de validacion (campos requeridos o tipo de dato incorrecto)
 #agregado por david el 17/04
 async def handler_validacion_excepciones_personalizadas(request: Request, exc: RequestValidationError):

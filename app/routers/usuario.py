@@ -5,7 +5,7 @@ from app.models import Usuario
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from app.services.dependencies import get_db
+from app.settings.dependencies import get_db
 from app.models import Usuario, Direccion
 from app.schemas.usuario import (
     UsuarioOut,
@@ -24,10 +24,7 @@ from app.auth.hashing import get_hash_contrasena
 from app.auth.auth import autentificar_usuario
 from app.auth.jwt import crear_token_acceso
 from typing import List
-from app.utils.helpers import (
-    verificar_campos_unicos,
-    crear_respuesta_json
-)
+from app.utils.helpers import verificar_campos_unicos, crear_respuesta_json
 
 
 #direccion por defecto de todas las rutas de usuarios
@@ -330,48 +327,4 @@ def editar_contrasena(data: ContrasenaUpdate, db: Session = Depends(get_db)):
         return JSONResponse({
             "status": "error",
             "message": f"Error al editar la contraseña: {str(e)}"
-        })
-
-#######################################################################################################
-
-#ELIMINAR USUARIO
-
-#ruta DELETE para eliminar usuario
-#creado por david el 11/05
-@usuarios_router.delete("/eliminar-usuario/{id}", status_code=status.HTTP_200_OK)
-def eliminar_usuario(id: int, db: Session = Depends(get_db)):
-    try:
-        usuario = db.query(Usuario).filter(Usuario.id == id).first()
-
-        if not usuario:
-            return JSONResponse({
-                "status": "error",
-                "message": "Usuario no encontrado"
-            })
-
-        #obtener el id de la direccion asociada
-        direccion_id = usuario.direccion_id
-
-        #eliminar al usuario
-        db.delete(usuario)
-        db.flush() #asegura que se libere la fk para luego poder borrar la direccion
-
-        #eliminar la direccion asociada
-        direccion = db.query(Direccion).filter(Direccion.id == direccion_id).first()
-
-        if direccion:
-            db.delete(direccion)
-
-        db.commit()
-
-        return JSONResponse({
-            "status": "success",
-            "message": "Usuario y dirección eliminados correctamente"
-        })
-
-    except Exception as e:
-        db.rollback()
-        return JSONResponse({
-            "status": "error",
-            "message": f"Error al eliminar usuario: {str(e)}"
         })

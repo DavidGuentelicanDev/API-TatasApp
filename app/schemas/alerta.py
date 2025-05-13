@@ -3,10 +3,7 @@
 
 from pydantic import BaseModel
 from datetime import datetime
-from app.utils.helpers import (
-    validador_no_string_vacio,
-    validador_opcion_en_lista
-)
+from app.utils.helpers import validador_no_string_vacio, validador_opcion_en_lista
 
 
 #CREAR ALERTA

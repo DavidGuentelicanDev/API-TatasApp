@@ -10,8 +10,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 import re
-from datetime import datetime, timezone
-#from app.schemas import EstadoAlertaResponse
+from datetime import datetime
 
 
 #SCHEMAS DE REGISTRO DE USUARIO
@@ -143,18 +142,3 @@ def opcion_en_lista_valida(v: int, opciones: list[int], field_name: str = 'campo
 # Decorador para ver si la opcion de tipo evento esta dentro ded la lista permitida, 
 def validador_opcion_en_lista(campo: str, opciones: list[int]):
     return field_validator(campo)(lambda cls, v, info: opcion_en_lista_valida(v, opciones, info.field_name))
-
-########################################################################################
-
-#validador para verificar que la alerta ya cambio a estado entregada (1) y no puede volver a modificarse
-#creado por david el 04/05/2025
-# def validar_alerta_ya_entregada(alerta: object) -> JSONResponse | None:
-#     if alerta.estado_alerta == 1:
-#         return JSONResponse(
-#             status_code=400,
-#             content=EstadoAlertaResponse(
-#                 status="error",
-#                 message="La alerta ya fue entregada y no puede modificarse"
-#             ).model_dump()
-#         )
-#     return None

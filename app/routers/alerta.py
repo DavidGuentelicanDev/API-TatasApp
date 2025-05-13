@@ -5,7 +5,7 @@ from app.models import Familiar, Usuario
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from app.services.dependencies import get_db
+from app.settings.dependencies import get_db
 from app.models import Usuario, Familiar, Alerta
 from app.schemas.alerta import (
     AlertaCreate,
@@ -14,11 +14,7 @@ from app.schemas.alerta import (
     EstadoAlertaResponse
 )
 from typing import List
-from app.utils.helpers import (
-    crear_respuesta_json,
-    #validar_alerta_ya_entregada
-)
-from app.services.alertas_services import crear_alerta
+from app.utils.helpers import crear_respuesta_json
 
 
 #direccion de todas las rutas de alerta
@@ -27,8 +23,21 @@ alertas_router = APIRouter(prefix="/alertas", tags=["Alertas"])
 
 #CREAR ALERTA
 
+# servicio para crear una nueva alerta
+# creado por Ale el 02/05/2025
+def crear_alerta(alerta_data: AlertaCreate, db: Session) -> Alerta:
+    nueva_alerta = Alerta(
+        usuario_id=alerta_data.usuario_id,
+        ubicacion=alerta_data.ubicacion,
+        mensaje=alerta_data.mensaje,
+        tipo_alerta=alerta_data.tipo_alerta
+    )
+    db.add(nueva_alerta)
+    db.commit()
+    db.refresh(nueva_alerta)
+    return nueva_alerta
+
 # ruta POST para crear ALARMAS
-#Envía notificacion a familiar si tiene token (PENDIENTE)
 # creada por Ale 02/05/2025
 @alertas_router.post("/crear-alerta", status_code=status.HTTP_201_CREATED)
 def registrar_alerta(alerta: AlertaCreate, db: Session = Depends(get_db)):

@@ -3,11 +3,7 @@
 
 from pydantic import BaseModel
 from datetime import datetime
-from app.utils.helpers import (
-    validador_no_string_vacio,
-    validador_fecha_futura, #agregado por andrea 29/04/2025
-    validador_opcion_en_lista #agregado por andrea 29/04/2025
-)
+from app.utils.helpers import validador_no_string_vacio, validador_fecha_futura, validador_opcion_en_lista
 
 
 #CREAR EVENTO

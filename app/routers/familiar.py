@@ -7,17 +7,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 import psycopg2
 from psycopg2 import errors
-from app.services.dependencies import get_db
+from app.settings.dependencies import get_db
 from app.models import Familiar
-from app.schemas.familiar import (
-    FamiliarCreate,
-    FamiliarOut,
-    UsuarioFamiliarOut
-)
+from app.schemas.familiar import FamiliarCreate, FamiliarOut, UsuarioFamiliarOut
 from typing import List
-from app.utils.helpers import (
-    crear_respuesta_json
-)
+from app.utils.helpers import crear_respuesta_json
 
 
 #direccion de todas las rutas de familiares
