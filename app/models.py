@@ -56,9 +56,8 @@ class Usuario(Base):
 
     #relacion con tabla direccion
     direccion_rel = relationship("Direccion", back_populates="usuarios")
-    #relaciones inversas con evento, rutina y alerta
+    #relaciones inversas con evento y alerta
     eventos = relationship("Evento", back_populates="adulto_mayor")
-    # rutinas = relationship("Rutina", back_populates="usuarios")
     alertas = relationship("Alerta", back_populates="adulto_mayor")
 
     #definicion especial para tipo_usuario con check
@@ -175,56 +174,3 @@ class Alerta(Base):
     @property
     def estado_alerta_nombre(self):
         return self.ESTADOS_ALERTA.get(self.estado_alerta, "Desconocido")
-
-#########################################################################################
-
-#tabla rutina (NO IMPLEMENTADA EN ESTE PROTOTIPO)
-#creada por david el 27/04
-# class Rutina(Base):
-#     __tablename__ = "RUTINA"
-
-#     #diccionario de tipos de rutina
-#     TIPOS_RUTINA = {
-#         1: "Medicamentos",
-#         2: "Ejercicios",
-#         3: "Etc..."
-#     }
-
-#     id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
-#     usuario_id = Column(BigInteger, ForeignKey("USUARIO.id"), nullable=False, index=True)
-#     nombre = Column(String(30), nullable=False)
-#     descripcion = Column(Text, nullable=True)
-#     tipo_rutina = Column(SmallInteger, nullable=False, index=True)
-
-#     usuarios = relationship("Usuario", back_populates="rutinas") #relacion con usuario
-#     dias_horas = relationship("DiaHora", back_populates="rutina") #relacion inversa con dia_hora
-
-#     #check para tipo_rutina
-#     __table_args__ = (
-#         CheckConstraint("tipo_rutina BETWEEN 1 AND 3", name="check_tipo_rutina_valido"),
-#     )
-
-#     #propiedad para leer el string de tipo_evento
-#     @property
-#     def tipo_rutina_nombre(self):
-#         return self.TIPOS_RUTINA.get(self.tipo_rutina, "Desconocido")
-
-#########################################################################################
-
-#tabla diahora (relacionada a rutina)
-#creado por david rl 27/04
-# class DiaHora(Base):
-#     __tablename__ = "DIA_HORA"
-
-#     id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
-#     rutina_id = Column(BigInteger, ForeignKey("RUTINA.id"), nullable=False, index=True)
-#     dia = Column(Date, nullable=False, index=True)
-#     hora = Column(Time, nullable=False, index=True)
-
-#     #relacion con rutina
-#     rutina = relationship("Rutina", back_populates="dias_horas")
-
-#     #restriccion para que no se repita la rutina el mismo dia a la misma hora
-#     __table_args__ = (
-#         UniqueConstraint("rutina_id", "dia", "hora", name="uq_rutina_dia_hora"),
-#     )
