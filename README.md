@@ -1,125 +1,128 @@
---API TatasApp--
+<h1 align="center">📱 API TatasApp</h1>
 
-Creadores:
-- Alexander Aguilera
-- Andrea Pino
+### 👥 Creadores
+- Alexander Aguilera  
+- Andrea Pino  
 - David Guentelican
 
-RUTAS DESPLEGADAS:
+---
 
-Usuarios:
-- Registro de usuario (POST)
-- Contactos registrados (tipo 2 = familiar) (GET)
-- Obtener usuarios por id (GET)
-- Obtener foto de perfil por id (GET)
-- Login (POST)
-- Editar foto de perfil (PATCH)
-- Editar datos generales de usuario (PATCH)
-- Editar correo (PATCH)
-- Editar contraseña (PATCH)
+## 🚀 Rutas Desplegadas
 
-Familiares:
-- Registro de familiar (POST)
-- Obtener familiares registrados en grupo familiar (adulto mayor) (GET)
-- Eliminar familiar del grupo familiar (DELETE)
+<details>
+<summary><strong>👤 Usuarios</strong></summary>
 
-Eventos:
-- Crear evento (POST)
-- Listar eventos (GET)
-- Eliminar evento (DELETE)
-- Editar evento (PUT)
-- Listar eventos por familiar (GET)
+- `POST` Registro de usuario  
+- `GET` Contactos registrados (tipo 2 = familiar)  
+- `GET` Obtener usuarios por ID  
+- `GET` Obtener foto de perfil por ID  
+- `POST` Login  
+- `PATCH` Editar foto de perfil  
+- `PATCH` Editar datos generales de usuario  
+- `PATCH` Editar correo  
+- `PATCH` Editar contraseña  
 
-Alertas:
-- Crear alerta (POST)
-- Obtener alertas pendientes por id de familiar (GET)
-- Obtener alertas concretadas por id de familiar (GET)
-- Actualizar estado de alertas (para notificaciones) (PATCH)
+</details>
 
-1. Arquitectura General
-El proyecto utiliza una arquitectura de Capas adaptada para APIs, con una separación clara de responsabilidades:
-- Modelos (Models): Define las estructuras de datos y las tablas de la base de datos utilizando SQLAlchemy.
-- Esquemas (Schemas): Define las validaciones y serializaciones de datos con Pydantic.
-- Rutas (Routers): Implementa los controladores de las rutas de la API.
-- Utilidades (Utils): Contiene funciones auxiliares reutilizables, como validaciones y respuestas estándar.
-- Configuración (Settings): Centraliza la configuración del proyecto, como variables de entorno y conexión a la base de datos.
-- Autenticación (Auth): Maneja la lógica de autenticación, hashing de contraseñas y generación de tokens JWT.
+<details>
+<summary><strong>👨‍👩‍👧 Familiares</strong></summary>
 
-2. Estructura de Carpetas
-La estructura del proyecto está organizada de manera modular, lo que facilita la escalabilidad y el mantenimiento:
+- `POST` Registro de familiar  
+- `GET` Obtener familiares registrados en grupo familiar  
+- `DELETE` Eliminar familiar del grupo familiar  
 
-app/
-├── main.py                # Punto de entrada de la aplicación FastAPI
-├── models.py              # Modelos ORM para la base de datos
-├── routers/               # Rutas de la API
-│   ├── alerta.py
-│   ├── evento.py
-│   ├── familiar.py
-│   ├── usuario.py
-├── schemas/               # Esquemas de validación y serialización
-│   ├── alerta.py
-│   ├── evento.py
-│   ├── familiar.py
-│   ├── usuario.py
-├── settings/              # Configuración y dependencias
-│   ├── config.py          # Variables de entorno y configuración
-│   ├── database.py        # Configuración de la base de datos
-│   ├── dependencies.py    # Dependencias reutilizables (e.g., sesiones de DB)
-├── auth/                  # Lógica de autenticación
-│   ├── auth.py            # Verificación de credenciales
-│   ├── hashing.py         # Hashing de contraseñas
-│   ├── jwt.py             # Generación y validación de tokens JWT
-├── utils/                 # Funciones auxiliares
-│   ├── helpers.py         # Validaciones y utilidades generales
-│   ├── validations.py     # Manejo de excepciones personalizadas
+</details>
 
-3. Componentes Clave
-a. Modelos (Models)
-Definidos en models.py, representan las tablas de la base de datos con SQLAlchemy. Ejemplo:
-- Usuario: Representa a los usuarios del sistema.
-- Familiar: Relaciona a los usuarios con sus familiares.
-- Evento y Alerta: Representan eventos y alertas asociados a los usuarios.
+<details>
+<summary><strong>📅 Eventos</strong></summary>
 
-b. Esquemas (Schemas)
-Definidos en schemas, utilizan Pydantic para validar y serializar datos de entrada/salida. Ejemplo:
-- UsuarioCreate: Valida los datos para registrar un usuario.
-- EventoOut: Serializa los datos de un evento para la respuesta.
+- `POST` Crear evento  
+- `GET` Listar eventos  
+- `DELETE` Eliminar evento  
+- `PUT` Editar evento  
+- `GET` Listar eventos por familiar  
 
-c. Rutas (Routers)
-Definidas en routers, agrupan las rutas de la API por funcionalidad. Ejemplo:
-- usuario.py: Maneja el registro, login y actualización de usuarios.
-- alerta.py: Maneja la creación y consulta de alertas.
+</details>
 
-d. Configuración (Settings)
-Centralizada en settings, incluye:
-- Variables de entorno cargadas desde .env (e.g., claves secretas, configuración de la base de datos).
-- Configuración de la base de datos con SQLAlchemy.
+<details>
+<summary><strong>🚨 Alertas</strong></summary>
 
-e. Autenticación (Auth)
-Definida en auth, incluye:
-- Hashing de contraseñas con bcrypt.
-- Generación y validación de tokens JWT.
+- `POST` Crear alerta  
+- `GET` Obtener alertas pendientes por ID de familiar  
+- `GET` Obtener alertas concretadas por ID de familiar  
+- `PATCH` Actualizar estado de alertas  
 
-f. Utilidades (Utils)
-Definidas en utils, incluyen:
-- Validaciones personalizadas (e.g., fechas futuras, correos válidos).
-- Respuestas JSON estándar.
+</details>
 
-4. Flujo de Trabajo
-- Solicitud HTTP: El cliente realiza una solicitud a una ruta específica.
-- Router: La solicitud es manejada por un router en routers.
-- Validación: Los datos de entrada son validados por un esquema en schemas.
-- Lógica de Negocio: Se ejecuta la lógica de negocio, interactuando con los modelos en models.py.
-- Respuesta: Los datos son serializados y devueltos al cliente.
+---
 
-5. Características Adicionales
-- Base de Datos: Utiliza PostgreSQL como base de datos relacional.
-- Autenticación: Implementa autenticación basada en JWT.
-- CORS: Configurado para permitir solicitudes desde orígenes específicos.
-- Manejo de Errores: Handlers personalizados para errores de validación y excepciones HTTP.
+## 🏗️ Arquitectura General
 
-6. Ventajas de la Arquitectura
-- Modularidad: Cada funcionalidad está separada en módulos, facilitando el mantenimiento.
-- Escalabilidad: La estructura permite agregar nuevas funcionalidades sin afectar las existentes.
-- Reutilización: Las dependencias y utilidades son reutilizables en diferentes partes del proyecto.
-- Seguridad: Uso de hashing seguro para contraseñas y autenticación con JWT.
+El proyecto está basado en una arquitectura de capas para APIs, que incluye:
+
+- **Models**: Estructuras de datos con SQLAlchemy  
+- **Schemas**: Validaciones y serializaciones con Pydantic  
+- **Routers**: Controladores de rutas  
+- **Utils**: Funciones auxiliares  
+- **Settings**: Configuración centralizada  
+- **Auth**: Lógica de autenticación (hashing y JWT)
+
+---
+
+## 🔧 Componentes Clave
+
+### 🔸 Models
+Definidos en `models.py` usando SQLAlchemy:
+- `Usuario`, `Familiar`, `Evento`, `Alerta`
+
+### 🔸 Schemas
+En `schemas/` usando Pydantic:
+- `UsuarioCreate`, `EventoOut`, etc.
+
+### 🔸 Routers
+En `routers/`:
+- `usuario.py`, `alerta.py`, etc.
+
+### 🔸 Settings
+En `settings/`:
+- Configuración de entorno y base de datos
+
+### 🔸 Auth
+En `auth/`:
+- Hashing con `bcrypt`, JWT tokens
+
+### 🔸 Utils
+En `utils/`:
+- Validaciones personalizadas y helpers
+
+---
+
+## 🔁 Flujo de Trabajo
+
+1. 📥 Solicitud HTTP del cliente  
+2. 🔀 Router correspondiente la procesa  
+3. ✅ Validación con Pydantic  
+4. 🧠 Lógica de negocio y consultas a la DB  
+5. 📤 Respuesta serializada al cliente
+
+---
+
+## 🛠️ Características Adicionales
+
+- 📦 **PostgreSQL** como base de datos  
+- 🔐 **JWT** para autenticación  
+- 🌐 **CORS** configurado  
+- ⚠️ Manejo personalizado de errores y excepciones
+
+---
+
+## ✅ Ventajas de la Arquitectura
+
+- 📦 Modularidad
+- 🚀 Escalabilidad
+- ♻️ Reutilización
+- 🔐 Seguridad
+
+---
+
+> _Para más detalles técnicos, consulta los archivos fuente o contáctanos directamente._
