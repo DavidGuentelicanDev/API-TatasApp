@@ -7,103 +7,212 @@
 
 ---
 
-## 🚀 Rutas Desplegadas
-
-<details>
-<summary><strong>👤 Usuarios</strong></summary>
-
-- `POST` Registro de usuario  
-- `GET` Contactos registrados (tipo 2 = familiar)  
-- `GET` Obtener usuarios por ID  
-- `GET` Obtener foto de perfil por ID  
-- `POST` Login  
-- `PATCH` Editar foto de perfil  
-- `PATCH` Editar datos generales de usuario  
-- `PATCH` Editar correo  
-- `PATCH` Editar contraseña  
-
-</details>
-
-<details>
-<summary><strong>👨‍👩‍👧 Familiares</strong></summary>
-
-- `POST` Registro de familiar  
-- `GET` Obtener familiares registrados en grupo familiar  
-- `DELETE` Eliminar familiar del grupo familiar  
-
-</details>
-
-<details>
-<summary><strong>📅 Eventos</strong></summary>
-
-- `POST` Crear evento  
-- `GET` Listar eventos  
-- `DELETE` Eliminar evento  
-- `PUT` Editar evento  
-- `GET` Listar eventos por familiar  
-
-</details>
-
-<details>
-<summary><strong>🚨 Alertas</strong></summary>
-
-- `POST` Crear alerta  
-- `GET` Obtener alertas pendientes por ID de familiar  
-- `GET` Obtener alertas concretadas por ID de familiar  
-- `PATCH` Actualizar estado de alertas  
-
-</details>
-
----
-
 ## 🏗️ Arquitectura General
 
 El proyecto está basado en una arquitectura de capas para APIs, que incluye:
 
-- **Models**: Estructuras de datos con SQLAlchemy  
-- **Schemas**: Validaciones y serializaciones con Pydantic  
-- **Routers**: Controladores de rutas  
-- **Utils**: Funciones auxiliares  
-- **Settings**: Configuración centralizada  
-- **Auth**: Lógica de autenticación (hashing y JWT)
+- **Models**: Definición de tablas y relaciones (SQLAlchemy)
+- **Schemas**: Validación y serialización de datos (Pydantic)
+- **Routers**: Definición de rutas/endpoints y lógica de negocio
+- **Utils**: Funciones auxiliares y validaciones personalizadas
+- **Settings**: Configuración centralizada (DB, variables de entorno)
+- **Auth**: Lógica de autenticación (hashing, JWT)
 
 ---
 
-## 🔧 Componentes Clave
+## 📂 Estructura de Carpetas
 
-### 🔸 Models
-Definidos en `models.py` usando SQLAlchemy:
-- `Usuario`, `Familiar`, `Evento`, `Alerta`
-
-### 🔸 Schemas
-En `schemas/` usando Pydantic:
-- `UsuarioCreate`, `EventoOut`, etc.
-
-### 🔸 Routers
-En `routers/`:
-- `usuario.py`, `alerta.py`, etc.
-
-### 🔸 Settings
-En `settings/`:
-- Configuración de entorno y base de datos
-
-### 🔸 Auth
-En `auth/`:
-- Hashing con `bcrypt`, JWT tokens
-
-### 🔸 Utils
-En `utils/`:
-- Validaciones personalizadas y helpers
+```
+app/
+├── main.py
+├── models.py
+├── routers/
+│   ├── usuario.py
+│   ├── familiar.py
+│   ├── evento.py
+│   └── alerta.py
+├── schemas/
+│   ├── usuario.py
+│   ├── familiar.py
+│   ├── evento.py
+│   └── alerta.py
+├── settings/
+│   ├── config.py
+│   ├── database.py
+│   └── dependencies.py
+├── auth/
+│   ├── auth.py
+│   ├── hashing.py
+│   └── jwt.py
+└── utils/
+    ├── helpers.py
+    └── validations.py
+```
 
 ---
 
 ## 🔁 Flujo de Trabajo
 
 1. 📥 Solicitud HTTP del cliente  
-2. 🔀 Router correspondiente la procesa  
-3. ✅ Validación con Pydantic  
-4. 🧠 Lógica de negocio y consultas a la DB  
-5. 📤 Respuesta serializada al cliente
+2. 🔀 Router correspondiente recibe la petición y valida con un Schema  
+3. 🧠 Lógica de negocio y acceso a la base de datos  
+4. 📤 Respuesta serializada al cliente  
+5. ⚠️ Manejo de errores personalizado
+
+---
+
+## 🚀 Endpoints y Ejemplos
+
+### 👤 Usuarios
+
+- **POST** `/usuarios/registro_usuario`  
+  Registrar usuario  
+  ```json
+  {
+    "nombres": "Juan",
+    "apellidos": "Pérez",
+    "fecha_nacimiento": "1950-01-01",
+    "correo": "juan.perez@mail.com",
+    "telefono": "912345678",
+    "tipo_usuario": 1,
+    "contrasena": "Password123",
+    "direccion": {
+      "direccion_texto": "Calle Falsa 123",
+      "adicional": "Depto 4B"
+    }
+  }
+  ```
+
+- **POST** `/usuarios/login`  
+  Login usuario  
+  ```json
+  {
+    "correo": "juan.perez@mail.com",
+    "contrasena": "Password123"
+  }
+  ```
+
+- **PATCH** `/usuarios/editar-foto-perfil`  
+  ```json
+  {
+    "id": 1,
+    "foto_perfil": "https://url.com/foto.jpg"
+  }
+  ```
+
+- **PATCH** `/usuarios/editar-datos`  
+  ```json
+  {
+    "id": 1,
+    "nombres": "Juan",
+    "apellidos": "Pérez",
+    "fecha_nacimiento": "1950-01-01",
+    "telefono": "912345678",
+    "direccion": {
+      "direccion_texto": "Nueva dirección 456",
+      "adicional": "Casa"
+    }
+  }
+  ```
+
+- **PATCH** `/usuarios/editar-correo`  
+  ```json
+  {
+    "id": 1,
+    "correo": "nuevo.correo@mail.com"
+  }
+  ```
+
+- **PATCH** `/usuarios/editar-contrasena`  
+  ```json
+  {
+    "id": 1,
+    "contrasena": "NuevaPassword123"
+  }
+  ```
+
+#### Rutas GET de Usuarios
+
+- **GET** `/usuarios/contactos-registrados`
+- **GET** `/usuarios/{usuario_id}`
+- **GET** `/usuarios/foto-perfil/{usuario_id}`
+
+---
+
+### 👨‍👩‍👧 Familiares
+
+- **POST** `/familiares/registrar-familiar`  
+  ```json
+  {
+    "adulto_mayor_id": 1,
+    "familiar_id": 2
+  }
+  ```
+
+- **DELETE** `/familiares/eliminar-familiar/{adulto_mayor_id}/{familiar_id}`
+
+#### Rutas GET de Familiares
+
+- **GET** `/familiares/familiares-adulto-mayor/{adulto_mayor_id}`
+
+---
+
+### 📅 Eventos
+
+- **POST** `/eventos/crear-evento`  
+  ```json
+  {
+    "usuario_id": 1,
+    "nombre": "Cita médica",
+    "descripcion": "Control anual",
+    "fecha_hora": "2025-06-01T10:00:00",
+    "tipo_evento": 1
+  }
+  ```
+
+- **PUT** `/eventos/modificar/{evento_id}`  
+  ```json
+  {
+    "nombre": "Cita médica modificada",
+    "descripcion": "Control anual actualizado",
+    "fecha_hora": "2025-06-02T11:00:00",
+    "tipo_evento": 1
+  }
+  ```
+
+- **DELETE** `/eventos/eliminar/{evento_id}`
+
+#### Rutas GET de Eventos
+
+- **GET** `/eventos/listar?usuario_id={id}`
+- **GET** `/eventos/listar-por-familiar?familiar_id={id}`
+
+---
+
+### 🚨 Alertas
+
+- **POST** `/alertas/crear-alerta`  
+  ```json
+  {
+    "usuario_id": 1,
+    "ubicacion": "-33.4569,-70.6483",
+    "mensaje": "¡Ayuda! Caí en la casa",
+    "tipo_alerta": 3
+  }
+  ```
+
+- **PATCH** `/alertas/actualizar-estado`  
+  ```json
+  {
+    "id": 10,
+    "estado_alerta": 1
+  }
+  ```
+
+#### Rutas GET de Alertas
+
+- **GET** `/alertas/obtener-alertas-pendientes/{id_familiar}`
+- **GET** `/alertas/obtener-alertas-historial/{id_familiar}`
 
 ---
 
@@ -124,5 +233,3 @@ En `utils/`:
 - 🔐 Seguridad
 
 ---
-
-> _Para más detalles técnicos, consulta los archivos fuente o contáctanos directamente._
