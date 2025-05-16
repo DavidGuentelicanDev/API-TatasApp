@@ -233,3 +233,23 @@ app/
 - 🔐 Seguridad
 
 ---
+
+## 📦 Dependencias principales
+
+El proyecto utiliza las siguientes dependencias principales:
+
+- **FastAPI** y **Starlette**: Framework para construir APIs web rápidas y asíncronas.
+- **SQLAlchemy**: ORM para la gestión de la base de datos PostgreSQL.
+- **psycopg2**: Driver para conectar con bases de datos PostgreSQL.
+- **Pydantic**: Validación y serialización de datos.
+- **Passlib** y **bcrypt**: Hashing seguro de contraseñas.
+- **python-jose**: Manejo de autenticación y generación de tokens JWT.
+- **python-dotenv**: Carga de variables de entorno desde archivos `.env`.
+- **Uvicorn**: Servidor ASGI para ejecutar la aplicación.
+- **CORS Middleware**: Permite el acceso controlado desde distintos orígenes.
+- **email-validator** y **python-multipart**: Validación de emails y manejo de formularios/multipart.
+- **orjson**, **ujson**: Serialización rápida de JSON.
+- **rich**: Salida enriquecida en consola para desarrollo.
+- Otras utilidades para manejo de tipos, seguridad y soporte de desarrollo.
+
+Estas dependencias permiten el desarrollo, despliegue y operación segura de la API TatasApp.
