@@ -124,3 +124,33 @@ def listar_eventos_por_familiar(
         )
         for e in eventos
     ]
+
+@eventos_router.get("/proximos", response_model=List[EventoOut])
+def obtener_eventos_proximos(
+    usuario_id: int = Query(..., description="ID del usuario logueado"),
+    minutos: int = Query(15, description="Minutos hacia el futuro para buscar eventos"),
+    db: Session = Depends(get_db)
+):
+    from datetime import datetime, timedelta
+
+    ahora = datetime.now()
+    en_minutos = ahora + timedelta(minutes=minutos)
+
+    eventos = db.query(Evento).filter(
+        Evento.usuario_id == usuario_id,
+        Evento.fecha_hora >= ahora,
+        Evento.fecha_hora <= en_minutos
+    ).all()
+
+    return [
+        EventoOut(
+            id=e.id,
+            usuario_id=e.usuario_id,
+            nombre=e.nombre,
+            descripcion=e.descripcion,
+            fecha_hora=e.fecha_hora,
+            tipo_evento=e.tipo_evento,
+            tipo_evento_nombre=e.tipo_evento_nombre
+        )
+        for e in eventos
+    ]
