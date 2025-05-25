@@ -14,7 +14,8 @@ from app.schemas.alerta import (
     EstadoAlertaResponse
 )
 from typing import List
-from app.utils.helpers import crear_respuesta_json
+from app.utils.helpers import crear_respuesta_json, convertir_hora_tz_chile
+from datetime import datetime, timezone
 
 
 #direccion de todas las rutas de alerta
@@ -26,11 +27,16 @@ alertas_router = APIRouter(prefix="/alertas", tags=["Alertas"])
 # servicio para crear una nueva alerta
 # creado por Ale el 02/05/2025
 def crear_alerta(alerta_data: AlertaCreate, db: Session) -> Alerta:
+    #convierte la hora a hora chile, david 25/05
+    hora_chile = convertir_hora_tz_chile(datetime.now(timezone.utc))
+    #quita la zona horaria para que sea "naive" (sin zona horaria, solo timestamp de postgresql)
+    hora_chile_naive = hora_chile.replace(tzinfo=None)
     nueva_alerta = Alerta(
         usuario_id=alerta_data.usuario_id,
         ubicacion=alerta_data.ubicacion,
         mensaje=alerta_data.mensaje,
-        tipo_alerta=alerta_data.tipo_alerta
+        tipo_alerta=alerta_data.tipo_alerta,
+        fecha_hora=hora_chile_naive
     )
     db.add(nueva_alerta)
     db.commit()
