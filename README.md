@@ -133,9 +133,50 @@ app/
 
 #### Rutas GET de Usuarios
 
-- **GET** `/usuarios/contactos-registrados`
-- **GET** `/usuarios/{usuario_id}`
-- **GET** `/usuarios/foto-perfil/{usuario_id}`
+- **GET** `/usuarios/contactos-registrados`  
+  Retorna la lista de usuarios registrados como familiares (tipo_usuario=2).  
+  - **Ejemplo de respuesta:**
+    ```json
+    [
+      {
+        "id_usuario": 2,
+        "telefono": "912345679",
+        "tipo_usuario": 2
+      }
+    ]
+    ```
+
+- **GET** `/usuarios/{usuario_id}`  
+  Retorna los datos completos de un usuario por su ID.  
+  - **Parámetros:**
+    - `usuario_id` (int, requerido): ID del usuario.
+  - **Ejemplo de respuesta:**
+    ```json
+    {
+      "nombres": "Juan",
+      "apellidos": "Pérez",
+      "fecha_nacimiento": "1950-01-01",
+      "correo": "juan.perez@mail.com",
+      "telefono": "912345678",
+      "tipo_usuario": 1,
+      "direccion_rel": {
+        "direccion_texto": "Calle Falsa 123",
+        "adicional": "Depto 4B"
+      }
+    }
+    ```
+
+- **GET** `/usuarios/foto-perfil/{usuario_id}`  
+  Retorna la foto de perfil del usuario por su ID.  
+  - **Parámetros:**
+    - `usuario_id` (int, requerido): ID del usuario.
+  - **Ejemplo de respuesta:**
+    ```json
+    {
+      "id_usuario": 1,
+      "foto_perfil": "https://url.com/foto.jpg"
+    }
+    ```
 
 ---
 
@@ -149,11 +190,41 @@ app/
   }
   ```
 
-- **DELETE** `/familiares/eliminar-familiar/{adulto_mayor_id}/{familiar_id}`
+- **DELETE** `/familiares/eliminar-familiar/{adulto_mayor_id}/{familiar_id}`  
+  Elimina la relación entre un adulto mayor y un familiar.  
+  - **Parámetros:**
+    - `adulto_mayor_id` (int, requerido): ID del adulto mayor.
+    - `familiar_id` (int, requerido): ID del familiar.
+  - **Ejemplo de respuesta:**
+    ```json
+    {
+      "status": "success",
+      "message": "Familiar eliminado correctamente del grupo familiar"
+    }
+    ```
 
 #### Rutas GET de Familiares
 
-- **GET** `/familiares/familiares-adulto-mayor/{adulto_mayor_id}`
+- **GET** `/familiares/familiares-adulto-mayor/{adulto_mayor_id}`  
+  Retorna la lista de familiares asociados a un adulto mayor.  
+  - **Parámetros:**
+    - `adulto_mayor_id` (int, requerido): ID del adulto mayor.
+  - **Ejemplo de respuesta:**
+    ```json
+    [
+      {
+        "id_adulto_mayor": 1,
+        "familiar_rel": {
+          "id_usuario": 2,
+          "nombres": "Andrea",
+          "apellidos": "Pino",
+          "correo": "andrea@mail.com",
+          "telefono": "912345679",
+          "foto_perfil": "https://url.com/foto.jpg"
+        }
+      }
+    ]
+    ```
 
 ---
 
@@ -171,21 +242,98 @@ app/
   ```
 
 - **PUT** `/eventos/modificar/{evento_id}`  
-  ```json
-  {
-    "nombre": "Cita médica modificada",
-    "descripcion": "Control anual actualizado",
-    "fecha_hora": "2025-06-02T11:00:00",
-    "tipo_evento": 1
-  }
-  ```
+  Modifica los datos de un evento existente.  
+  - **Parámetros:**
+    - `evento_id` (int, requerido): ID del evento a modificar.
+  - **Body:**
+    ```json
+    {
+      "nombre": "Cita médica modificada",
+      "descripcion": "Control anual actualizado",
+      "fecha_hora": "2025-06-02T11:00:00",
+      "tipo_evento": 1
+    }
+    ```
+  - **Ejemplo de respuesta:**
+    ```json
+    {
+      "status": "success",
+      "message": "Evento modificado correctamente",
+      "evento_id": 1
+    }
+    ```
 
-- **DELETE** `/eventos/eliminar/{evento_id}`
+- **DELETE** `/eventos/eliminar/{evento_id}`  
+  Elimina un evento por su ID.  
+  - **Parámetros:**
+    - `evento_id` (int, requerido): ID del evento.
+  - **Ejemplo de respuesta:**
+    ```json
+    {
+      "status": "success",
+      "message": "Evento eliminado correctamente"
+    }
+    ```
 
 #### Rutas GET de Eventos
 
-- **GET** `/eventos/listar?usuario_id={id}`
-- **GET** `/eventos/listar-por-familiar?familiar_id={id}`
+- **GET** `/eventos/listar?usuario_id={id}`  
+  Retorna todos los eventos asociados al usuario indicado.  
+  - **Parámetros:**
+    - `usuario_id` (int, requerido): ID del usuario logueado.
+  - **Ejemplo de respuesta:**
+    ```json
+    [
+      {
+        "id": 1,
+        "usuario_id": 1,
+        "nombre": "Cita médica",
+        "descripcion": "Control anual",
+        "fecha_hora": "2025-06-01T10:00:00Z",
+        "tipo_evento": 1,
+        "tipo_evento_nombre": "Cita Médica"
+      }
+    ]
+    ```
+
+- **GET** `/eventos/listar-por-familiar?familiar_id={id}`  
+  Retorna los eventos del adulto mayor asociado a un familiar.  
+  - **Parámetros:**
+    - `familiar_id` (int, requerido): ID del usuario familiar.
+  - **Ejemplo de respuesta:**
+    ```json
+    [
+      {
+        "id": 2,
+        "usuario_id": 1,
+        "nombre": "Control de presión",
+        "descripcion": "Medirse la presión",
+        "fecha_hora": "2025-06-01T09:00:00Z",
+        "tipo_evento": 3,
+        "tipo_evento_nombre": "Evento Personal"
+      }
+    ]
+    ```
+
+- **GET** `/eventos/proximos?usuario_id={id}&minutos={minutos}`  
+  Retorna los eventos del usuario que ocurrirán en los próximos X minutos (por defecto 15).
+  - **Parámetros:**
+    - `usuario_id` (int, requerido): ID del usuario logueado.
+    - `minutos` (int, opcional): Minutos hacia el futuro para buscar eventos (por defecto 15).
+  - **Ejemplo de respuesta:**
+    ```json
+    [
+      {
+        "id": 5,
+        "usuario_id": 1,
+        "nombre": "Toma de medicamentos",
+        "descripcion": "Pastilla para la presión",
+        "fecha_hora": "2025-06-01T10:05:00Z",
+        "tipo_evento": 3,
+        "tipo_evento_nombre": "Evento Personal"
+      }
+    ]
+    ```
 
 ---
 
@@ -211,8 +359,43 @@ app/
 
 #### Rutas GET de Alertas
 
-- **GET** `/alertas/obtener-alertas-pendientes/{id_familiar}`
-- **GET** `/alertas/obtener-alertas-historial/{id_familiar}`
+- **GET** `/alertas/obtener-alertas-pendientes/{id_familiar}`  
+  Retorna las alertas pendientes (estado=0) asociadas al adulto mayor de un familiar.  
+  - **Parámetros:**
+    - `id_familiar` (int, requerido): ID del usuario familiar.
+  - **Ejemplo de respuesta:**
+    ```json
+    [
+      {
+        "id": 1,
+        "usuario_id": 1,
+        "ubicacion": "-33.4569,-70.6483",
+        "mensaje": "¡Ayuda! Caí en la casa",
+        "tipo_alerta": 3,
+        "fecha_hora": "2025-06-01T10:00:00",
+        "estado_alerta": 0
+      }
+    ]
+    ```
+
+- **GET** `/alertas/obtener-alertas-historial/{id_familiar}`  
+  Retorna el historial de alertas (estado=1) asociadas al adulto mayor de un familiar.  
+  - **Parámetros:**
+    - `id_familiar` (int, requerido): ID del usuario familiar.
+  - **Ejemplo de respuesta:**
+    ```json
+    [
+      {
+        "id": 2,
+        "usuario_id": 1,
+        "ubicacion": "-33.4569,-70.6483",
+        "mensaje": "Alerta entregada",
+        "tipo_alerta": 2,
+        "fecha_hora": "2025-06-01T09:00:00",
+        "estado_alerta": 1
+      }
+    ]
+    ```
 
 ---
 
