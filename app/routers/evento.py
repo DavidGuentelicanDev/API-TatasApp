@@ -40,6 +40,7 @@ def crear_evento(evento: EventoCreate, db: Session = Depends(get_db)):
             detail=f"Error al crear evento: {str(e)}"
         )
 
+#######################################################################################################
 
 # ruta get para listar eventos
 # creada por Andrea 9/05/2025
@@ -63,6 +64,7 @@ def listar_eventos(
         for e in eventos
     ]
 
+#######################################################################################################
 
 # ruta delete para eliminar eventos
 # creada por Andrea 9/05/2025
@@ -98,6 +100,9 @@ def modificar_evento(evento_id: int, datos: EventoUpdate, db: Session = Depends(
         "message": "Evento modificado correctamente",
         "evento_id": evento.id
     }
+
+#######################################################################################################
+
 # ruta para traer eventos del adulto mayor segun id familiar
 # creada por Andrea 9/05/2025
 @eventos_router.get("/listar-por-familiar", response_model=List[EventoOut])

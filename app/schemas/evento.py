@@ -21,7 +21,9 @@ class EventoCreate(BaseModel):
     _val_fecha = validador_fecha_futura("fecha_hora")
     _val_tipo = validador_opcion_en_lista("tipo_evento", [1, 2, 3, 4])
 
-    #esquema de respuesta para mostrar evento
+####################################################################################################
+
+#esquema de respuesta para mostrar evento
 #creado por Andrea el 09/05/2025
 class EventoOut(BaseModel):
     id: int
@@ -38,6 +40,10 @@ class EventoOut(BaseModel):
             datetime: lambda v: v.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
         }
 
+####################################################################################################
+
+#esquema para actualizar el evento
+#creado por Andrea el 09/05/2025
 class EventoUpdate(BaseModel):
     nombre: str
     descripcion: str | None = None
